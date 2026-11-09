@@ -1,0 +1,150 @@
+/* 地球環境ノード・コースティクスフィルター — styles
+ * Edge-to-Edge + セーフエリア / プレビュー最優先 / スマホ対応
+ */
+:root {
+  --bg: #071014;
+  --bg2: #0c1a21;
+  --panel: #10222b;
+  --line: #1e3a46;
+  --ink: #e8f4f1;
+  --dim: #9db8b3;
+  --accent: #37e0c8;
+  --accent2: #ffb14e;
+  --danger: #ff7a7a;
+  --radius: 12px;
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  line-height: 1.6;
+  padding-top: var(--sat);
+  padding-bottom: var(--sab);
+}
+
+/* 背景は端まで、重要UIはセーフエリア内 */
+.topbar {
+  padding: 12px calc(16px + var(--sar)) 12px calc(16px + var(--sal));
+  background: linear-gradient(180deg, #0d222b, var(--bg));
+  border-bottom: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; justify-content: space-between;
+}
+.title-block h1 { font-size: 1.15rem; margin: 0; }
+.subtitle { margin: 2px 0 0; color: var(--dim); font-size: 0.8rem; }
+.top-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+button, select, input[type="text"], input[type="number"], input[type="date"], input[type="time"] {
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+button { cursor: pointer; background: #14333d; }
+button:hover { border-color: var(--accent); }
+button:disabled { opacity: 0.5; cursor: wait; }
+input[type="range"] { accent-color: var(--accent); }
+
+.layout {
+  padding: 12px calc(16px + var(--sar)) 24px calc(16px + var(--sal));
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.preview-pane { display: block; }
+.canvas-wrap {
+  background: #000;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+}
+.canvas-wrap canvas { display: block; width: 100%; height: auto; }
+/* FIX-15: FPS・品質段の重ね表示(小さく薄く・目立たせない) */
+.fps-overlay {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  color: rgba(232, 244, 241, 0.55);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 1px 6px;
+  border-radius: 6px;
+  pointer-events: none;
+}
+.statusline { color: var(--dim); font-size: 0.85rem; min-height: 1.4em; margin: 6px 0; }
+.preview-tools {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+}
+.preview-tools label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+.readout { font-size: 0.8rem; color: var(--dim); margin: 6px 0 16px; }
+
+.nodes h2, .recipes h2 { font-size: 1.05rem; margin: 18px 0 8px; }
+.nodes-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.mode-switch { display: flex; gap: 12px; font-size: 0.9rem; }
+.mode-switch label { display: flex; gap: 6px; align-items: center; }
+.node-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(4, 1fr);
+}
+.node {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin: 0;
+  min-width: 0;
+}
+.node legend { padding: 0 8px; color: var(--accent); font-weight: bold; }
+.node label { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; margin: 8px 0; }
+.node label span { color: var(--dim); }
+.derived { font-size: 0.8rem; color: var(--dim); }
+
+.diagram, .couplings, .realmode, .recipes {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.diagram h3, .couplings h3, .realmode h3 { margin: 0 0 8px; font-size: 0.95rem; color: var(--accent2); }
+.diagram-flow { margin: 0; padding-left: 1.2em; font-size: 0.88rem; }
+.diagram-flow li { margin: 4px 0; }
+.hint { font-size: 0.82rem; color: var(--dim); }
+#coupling-list { list-style: none; margin: 0; padding: 0; }
+#coupling-list li {
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  border-top: 1px solid var(--line); padding: 8px 0; font-size: 0.88rem;
+}
+#coupling-list li label { display: flex; gap: 6px; align-items: center; }
+
+.real-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
+.real-row label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+.preset-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.recipe-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.recipe-row label { display: flex; gap: 6px; align-items: center; font-size: 0.9rem; }
+
+.foot { text-align: center; color: var(--dim); font-size: 0.78rem; padding: 12px; }
+
+/* スマホ: ノードは1列、プレビューが先頭に来る順序はDOM通り */
+@media (max-width: 900px) {
+  .node-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  .node-grid { grid-template-columns: 1fr; }
+  .title-block h1 { font-size: 1rem; }
+  .top-actions button { flex: 1 1 45%; }
+}

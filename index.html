@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>地球環境ノード・コースティクスフィルター</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="title-block">
+    <h1>地球環境ノード・コースティクスフィルター</h1>
+    <p class="subtitle">環境をコードで記述し、任意の像の上に再現する</p>
+  </div>
+  <div class="top-actions">
+    <button id="btn-open" type="button">画像・動画を開く</button>
+    <button id="btn-sample" type="button">サンプルで試す</button>
+    <button id="btn-png" type="button">静止画PNG保存</button>
+    <button id="btn-webm" type="button">ループ動画WebM保存(8秒)</button>
+  </div>
+</header>
+<input type="file" id="file-media" accept="image/png,image/jpeg,image/webp,video/mp4,video/webm" hidden>
+<input type="file" id="file-recipe" accept="application/json,.json" hidden>
+
+<main class="layout">
+  <section class="preview-pane">
+    <div class="canvas-wrap">
+      <canvas id="gl"></canvas>
+      <div id="fps-overlay" class="fps-overlay" aria-hidden="true"></div>
+      <video id="vid" playsinline muted loop hidden></video>
+    </div>
+    <div id="gl-status" class="statusline" role="status">起動中…</div>
+    <div class="preview-tools">
+      <label>効果の強さ <input type="range" id="in-strength" min="0" max="2" step="0.05" value="1"><span id="v-strength">1.00</span></label>
+      <label>露出 <input type="range" id="in-exposure" min="0.2" max="2.5" step="0.05" value="1"><span id="v-exposure">1.00</span></label>
+      <label>描画品質 <select id="in-quality" aria-label="描画品質"><option value="auto" selected>自動</option><option value="high">高</option><option value="mid">中</option><option value="low">低</option></select></label>
+    </div>
+    <div id="webm-status" class="statusline"></div>
+    <div id="env-readout" class="readout"></div>
+
+    <section class="nodes">
+      <div class="nodes-head">
+        <h2>環境ノード</h2>
+        <div class="mode-switch" role="radiogroup" aria-label="編集モード">
+          <label><input type="radio" name="editmode" value="normal" checked> 通常(繋がないノード)</label>
+          <label><input type="radio" name="editmode" value="advanced"> 上級(結合エディタ)</label>
+        </div>
+      </div>
+
+      <div class="node-grid">
+        <fieldset class="node" id="node-sun">
+          <legend>太陽</legend>
+          <label>日付 <input type="date" id="in-date" value="2026-08-15"></label>
+          <label>時刻 <input type="time" id="in-time" value="12:00"></label>
+          <label>緯度(度) <input type="number" id="in-lat" min="-90" max="90" step="0.1" value="26.3"></label>
+          <label>経度(度) <input type="number" id="in-lon" min="-180" max="180" step="0.1" value="127.8"></label>
+          <p class="derived">高度 <span id="sun-alt">—</span>° / 方位 <span id="sun-az">—</span>°</p>
+        </fieldset>
+
+        <fieldset class="node" id="node-water">
+          <legend>水</legend>
+          <label>水深(m) <input type="number" id="in-depth" min="0.1" max="60" step="0.1" value="2"></label>
+          <label>透明度 <input type="range" id="in-transp" min="0" max="1" step="0.01" value="0.7"><span id="v-transp">0.70</span></label>
+          <label>濁り <input type="range" id="in-turbid" min="0" max="1" step="0.01" value="0.3"><span id="v-turbid">0.30</span></label>
+          <label>色素(藻など) <input type="range" id="in-pigment" min="0" max="1" step="0.01" value="0.3"><span id="v-pigment">0.30</span></label>
+        </fieldset>
+
+        <fieldset class="node" id="node-wind">
+          <legend>風と波</legend>
+          <label>風速(m/s) <input type="number" id="in-wind" min="0" max="40" step="0.1" value="3"></label>
+          <label>風向(度) <input type="number" id="in-windir" min="0" max="360" step="1" value="135"></label>
+          <label>波の細かさ <input type="range" id="in-fine" min="0" max="1" step="0.01" value="0.5"><span id="v-fine">0.50</span></label>
+          <label>流れの速さ <input type="range" id="in-flow" min="0" max="1" step="0.01" value="0.5"><span id="v-flow">0.50</span></label>
+          <p class="derived">波高(目安) <span id="wave-h">—</span>m</p>
+        </fieldset>
+
+        <fieldset class="node" id="node-weather">
+          <legend>天気</legend>
+          <label>雲量(%) <input type="number" id="in-cloud" min="0" max="100" step="1" value="20"></label>
+          <label>大気の澄み <input type="range" id="in-clarity" min="0" max="1" step="0.01" value="0.8"><span id="v-clarity">0.80</span></label>
+          <p class="derived">直射 <span id="wx-sun">—</span> / 拡散度 <span id="wx-dif">—</span></p>
+        </fieldset>
+      </div>
+
+      <div class="diagram" aria-label="影響関係ダイアグラム(表示のみ)">
+        <h3>影響関係(表示のみ・編集不可)</h3>
+        <ol class="diagram-flow">
+          <li><b>雲</b> <span id="d-cloud">—</span>% → 太陽を減衰させ、光を拡散させる</li>
+          <li><b>風</b> <span id="d-wind">—</span>m/s → 波高 <span id="d-wave">—</span>m を作る</li>
+          <li><b>太陽</b> 高度<span id="d-alt">—</span>° → コースティクス強度 <span id="d-caus">—</span></li>
+          <li><b>水深</b> <span id="d-depth">—</span>m・濁り <span id="d-turb">—</span> → 集光と色を変調する</li>
+        </ol>
+      </div>
+
+      <div id="coupling-editor" class="couplings" hidden>
+        <h3>結合エディタ(上級)</h3>
+        <p class="hint">各結合の ON/OFF と重み(0–2)を編集できます。通常モードでは物理既定値で fixed に連動します。</p>
+        <ul id="coupling-list"></ul>
+      </div>
+
+      <div class="realmode">
+        <h3>実在モード</h3>
+        <p class="hint">地名と日時を入れると、Open-Meteo(キー不要)から緯度経度・雲量・風を取得し、各ノードに流し込みます。流し込み後も手で編集できます。</p>
+        <div class="real-row">
+          <label>地名 <input type="text" id="in-place" placeholder="例: 那覇市"></label>
+          <label>日付 <input type="date" id="in-rdate" value="2026-08-15"></label>
+          <label>時刻 <input type="time" id="in-rtime" value="12:00"></label>
+          <button id="btn-real" type="button">この場所・日時を取り込む</button>
+        </div>
+        <div id="real-status" class="statusline"></div>
+      </div>
+    </section>
+
+    <section class="recipes">
+      <h2>レシピ(環境のコード)</h2>
+      <div class="preset-row" id="preset-row"></div>
+      <div class="recipe-row">
+        <label>名前 <input type="text" id="recipe-name" value="無題の環境"></label>
+        <button id="btn-save-ls" type="button">ブラウザに保存</button>
+        <select id="ls-list" aria-label="保存済みレシピ"></select>
+        <button id="btn-load-ls" type="button">読み込み</button>
+        <button id="btn-del-ls" type="button">削除</button>
+      </div>
+      <div class="recipe-row">
+        <button id="btn-download" type="button">ファイルに保存(JSON)</button>
+        <button id="btn-upload" type="button">ファイルから読み込み</button>
+      </div>
+    </section>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>ループ長 8秒・継ぎ目なし / 屈折率 1.333 / レシピ形式 caustics-recipe/v1</p>
+</footer>
+<div id="verify-out" hidden></div>
+
+<script src="shader.js"></script>
+<script src="env.js"></script>
+<script src="recipe.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
