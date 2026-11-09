@@ -1,0 +1,81 @@
+{
+  "schema": "caustics-recipe/v1",
+  "name": "緑の川の浅瀬・午前",
+  "place": null,
+  "sun": {
+    "date": "2026-06-10",
+    "time": "09:30",
+    "latitudeDeg": 35.7,
+    "longitudeDeg": 139.7
+  },
+  "water": {
+    "depthM": 0.6,
+    "transparency": 0.55,
+    "turbidity": 0.35,
+    "pigment": 0.8
+  },
+  "windWave": {
+    "windSpeedMS": 1.5,
+    "windDirDeg": 90,
+    "fineness": 0.7,
+    "flowSpeed": 0.6
+  },
+  "weather": {
+    "cloudPct": 20,
+    "clarity": 0.75
+  },
+  "couplings": [
+    {
+      "id": "cloud-sun",
+      "from": "天気",
+      "to": "太陽",
+      "label": "雲→太陽減衰",
+      "enabled": true,
+      "weight": 1
+    },
+    {
+      "id": "wind-wave",
+      "from": "風と波",
+      "to": "風と波",
+      "label": "風→波高",
+      "enabled": true,
+      "weight": 1
+    },
+    {
+      "id": "sun-caustics",
+      "from": "太陽",
+      "to": "コースティクス",
+      "label": "太陽→コースティクス強度",
+      "enabled": true,
+      "weight": 1
+    },
+    {
+      "id": "turbid-caustics",
+      "from": "水",
+      "to": "コースティクス",
+      "label": "濁り→コースティクス減衰",
+      "enabled": true,
+      "weight": 1
+    },
+    {
+      "id": "depth-tint",
+      "from": "水",
+      "to": "水の色",
+      "label": "水深→吸収ティント",
+      "enabled": true,
+      "weight": 1
+    },
+    {
+      "id": "cloud-glitter",
+      "from": "天気",
+      "to": "グリッター",
+      "label": "雲→グリッター拡散",
+      "enabled": true,
+      "weight": 1
+    }
+  ],
+  "render": {
+    "strength": 1.1,
+    "exposure": 1
+  }
+}

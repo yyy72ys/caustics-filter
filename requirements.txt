@@ -1,0 +1,9 @@
+# Dependencies for the offline physical pipeline (offline/*.py)
+# Verified by scanning the import statements of every script in offline/.
+# Python 3.10+ (uses PEP 604 style annotations in places) and ffmpeg are
+# also required; ffmpeg is a system binary, not a pip package.
+
+numpy>=1.24
+Pillow>=10.0
+scipy>=1.10
+opencv-python>=4.8   # only used by offline/run.py (frame comparison helpers)

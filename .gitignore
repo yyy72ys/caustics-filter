@@ -1,0 +1,5 @@
+# Render output and intermediates
+out/
+*.npy
+__pycache__/
+*.log
