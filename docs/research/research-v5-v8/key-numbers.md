@@ -1,0 +1,20 @@
+# Key verified numbers (read 2026-11-10, index unless noted)
+- Water bulk modulus 2.2 GPa, beta ~4.6-5.1e-10 /Pa; 100 m depth -> dV/V 5.2e-4. compadre.org/nexusph Bulk modulus liquids.
+- dn/dT water ~ -1.0e-4 /C at 20C; n 1.33434 max just below 0C, 1.3330 at 20C, 1.31854 at 100C (vitroid/Water Science, Waxler NIST tables show n rises with P, falls with T).
+- Viscosity: 1.792 mPa s at 0C, 1.002 at 20C, ~0.65 at 40C (Kestin correlation via statgarden).
+- Surface tension 72.8 mN/m at 20C, dsigma/dT ~ -0.152 mN/m/K (fluidprops/IAPWS).
+- TSI 1361 W/m2, cycle variation ~0.1% ~1.3 W/m2 p-t; annual eccentricity 6.9%. UV: few % 200-300nm, 10-20% 150-200, 50-100% Lyman-alpha (Krivova et al A&A 2006; Frontiers review: UV proportion 6-8%).
+- Flare X-class: 0-14nm +680% avg, 25-105nm +120%, 122-190nm +35% (FISM, Huang et al) — all bands absorbed in thermosphere/ionosphere.
+- Solar wind kinetic+thermal flux ~5e-4 W/m2 each at 1AU vs 1365 radiative (~1e6x less); magnetosphere input active up to ~2 TW, extreme Oct 2003 Cluster estimate 17 TW global, ~30% to ionospheric Joule heating (ESA/Rosenqvist 2006).
+- CLOUD: ions enhance nucleation 2-10x+ (Kirkby 2011 Nature, mid-troposphere H2SO4-H2O); Dunne 2016 Science global model: CCN change over solar cycle only 0.1%, GCR variations do not appreciably affect climate via nucleation.
+- GCR: Forbush decreases typically <3%, rare >10%, CME depressions 3-20%; neutron-monitor cycle amplitude ~20%.
+- Lunar atmospheric tide: 0.06 mb tropics, 0.02 mb midlat (AMS Glossary); ~7 Pa max low lat, wind 0.03 m/s (ScienceDirect overview).
+- Solid earth tide: M2 vertical up to ~55 cm equator (Wikipedia/Earth tide, Agnew), typical 20-30 cm; moves ground+pond together.
+- Inverse barometer: ~1 cm per hPa (Cambridge/J Glaciol, Gill 1982).
+- Films: monomolecular film damps cm-dm waves; fish-oil tank: sigma of surface elevation shrinks ~order of magnitude, wind waves do not grow from rest with oil (Copernicus os-2018-111); Marangoni resonance, damping grows k^3/2 outside resonance (Alpers & Huhnerfuss).
+- Evaporation bulk: QE = rho_a * lambda * CE * U * (qa-qs), CE~1.3e-3 (DYRESM); Dalton E=f(u)(es-ea).
+- Salinity: freshwater n 1.33300, seawater S=35 n 1.33940, density x1.0264 (Holmes-Farley); dn/dS ~1.8e-4 /psu derived.
+- CDOM: inland aCDOM(440) 0.1-8.5 m-1, up to 20 m-1 reported (Remote Sens Environ 2014 review via ScienceDirect).
+- Mirage: inferior needs dT/dz < -3.5C per 10 cm (Stull, LibreTexts); superior over cold water documented at km distances, 6 km example, air 27-30C water 12-14C.
+- Coriolis: f=1.03e-4 /s at 45deg; bath Ro ~3200 (fluid-flow-aerodynamics essay, standard scaling).
+- IPCC AR6 solar forcing +0.05 W/m2 since 1750 vs GHG +2.72; 11yr surface temp imprint ~0.07C (secondary synthesis of AR6 — flag as index/secondary).

@@ -1,0 +1,1578 @@
+{
+  "pipeline": "v6-chunk2",
+  "design": "PIPELINE-V6.md (caustics v3 chunk 2: rain, windless calm)",
+  "evidence": "report.md sections 3.1-3.5 (rain), 5 (variable map)",
+  "created_utc": "2026-11-09T21:45:35.609990+00:00",
+  "recipe": "緑の川の浅瀬・午前",
+  "recipe_schema_in": "caustics-recipe/v1",
+  "preset": 1,
+  "seed": 2610463815026170101,
+  "t_s": 0.0,
+  "scene": {
+    "note": "the verification scene is preset 1's photo and sun with wind = 0 (calm): the background is the Cox-Munk floor sigma2 ~ 0.003, never a perfect mirror (PIPELINE-V6 section 7)",
+    "wind_ms": 0.0,
+    "specL_m": 0.3,
+    "patch_S_m": 1.2,
+    "patch_resolution_m": 0.0005859375,
+    "ring_wavelength_px_at_R10": 25.39863316971379,
+    "depthM": 0.6,
+    "turbid": 0.35,
+    "sun_alt_deg": 59.0265833497501,
+    "sun_az_deg": 105.21655019956825,
+    "sunI": 0.6064565976981172,
+    "sunColor": [
+      1.0,
+      0.97,
+      0.92
+    ],
+    "photo": "../test-inputs/moth-on-bark.jpg",
+    "photo_size": [
+      735,
+      539
+    ],
+    "design_assumed_patch_m": 1.48,
+    "patch_note": "PIPELINE-V6 section 7 quotes a 1.48 m patch; at wind 0 the recipe's specL clamp gives 1.20 m, i.e. a FINER ring sampling (1.5 cm ~ 25.6 px, not 21 px)",
+    "background_anisotropy": "the windless residual keeps the existing pipeline's cos^2 lobe shape (v5 behaviour, required for the R=0 identity gate); the rain band itself is isotropic"
+  },
+  "recipe_v6_extension": {
+    "parsed": {
+      "schema": "caustics-recipe/v2",
+      "schema_is_v2": true,
+      "legacy_recipe": false,
+      "wave": {
+        "heightMode": "wind",
+        "height_m": null
+      },
+      "bottom": {
+        "substrate": null,
+        "albedoScale": 1.0
+      },
+      "rain": {
+        "rate_mm_h": 0.0,
+        "active": false,
+        "category": "none",
+        "legacy": false,
+        "note": "rate 0 == v5 behaviour exactly; the field is optional and absent in v1 recipes"
+      },
+      "schema_v6_fields": [
+        "rain.rate_mm_h"
+      ]
+    },
+    "new_fields": [
+      "rain.rate_mm_h"
+    ],
+    "legacy_note": "v1 recipes without the rain block read exactly as before; R=0 is a hard early return to the v5 state (no band, no damping, identical omega)",
+    "recipes_written": [
+      "rain-R00-v2.json",
+      "rain-R02-v2.json",
+      "rain-R10-v2.json",
+      "rain-R50-v2.json"
+    ]
+  },
+  "rain_physics_nodes": {
+    "eta": 0.1,
+    "eta_basis": "impact -> ring-wave energy conversion efficiency.  The report derives everything else in the rain chain (Lambda(R), v(D), F(R), D0(R), the k band, the lifetime) but not this.  Value 0.10: about a tenth of the impact kinetic energy survives into the ring band after the cavity, crown and Worthington-jet/splash phase -- which PIPELINE-V6 section 8 explicitly excludes from the model, so that energy is lost by construction.  Order-of-magnitude calibration, NOT derived; the sensitivity is recorded in numbers-v6.json (eta 0.03/0.10/0.30).",
+    "tau_ring_s": 0.15,
+    "ring_band_rad_per_m": [
+      310.0,
+      630.0
+    ],
+    "capillary_crossover": {
+      "l_c_m": 0.0027091418459143854,
+      "k_c_rad_per_m": 369.120576505835,
+      "lambda_c_m": 0.017022040241314648,
+      "c_min_m_s": 0.23055013124446544
+    },
+    "F_table_report_3_3": {
+      "1.0": 1300.0,
+      "10.0": 4200.0,
+      "25.0": 6400.0,
+      "50.0": 8600.0
+    },
+    "F_table_tolerance_factor": 1.5,
+    "per_rate": {
+      "R00": {
+        "name": "rain.rate_mm_h",
+        "value": 0.0,
+        "active": false,
+        "note": "R=0 -> v5 behaviour exactly (no band, no damping)"
+      },
+      "R02": {
+        "name": "rain.rate_mm_h",
+        "value": 2.0,
+        "units": "mm/h",
+        "active": true,
+        "summary": {
+          "rate_mm_h": 2.0,
+          "active": true,
+          "lambda_per_mm": 3.544602648362247,
+          "lambda_per_m": 3544.602648362247,
+          "D_mean_mm": 0.2821190692451921,
+          "D0_mm": 1.035376984129855,
+          "k_ring_rad_per_m": 559.5037280651488,
+          "lambda_ring_m": 0.011229925721688792,
+          "k_ring_in_band": true,
+          "placement": {
+            "rate_mm_h": 2.0,
+            "D0_mm": 1.035376984129855,
+            "t_placement": 0.12299257216887914,
+            "lambda_ring_mm": 11.229925721688792,
+            "lambda_ring_mm_clipped": 11.229925721688792,
+            "clipped_to_band": false,
+            "rule": "lambda = 10mm + 10mm * (D0-D0(R=1))/(D0(R=50)-D0(R=1)); the two observed band limits are the anchors, D0(R) is the interpolation variable (report section 3.4: bigger drops -> longer rings).  Modelling placement, not a calibration."
+          },
+          "flux": {
+            "rate_mm_h": 2.0,
+            "lambda_per_mm": 3.544602648362247,
+            "D0_mm": 1.035376984129855,
+            "F_clamped": 2145.2230061050022,
+            "F_unclamped": 1898.3135150064177,
+            "F_validity_band_0p5_5mm": 1198.2871011723635,
+            "F_table": null,
+            "F_ratio_clamped_to_table": null,
+            "rate_back_check_mm_h": 2.3727315804324083,
+            "rate_back_check_rel": 0.18636579021620414,
+            "note": "F_clamped is the physical variant and the gate input; F_unclamped reproduces the report table; the 0.5-5 mm band restriction gives the report's own 'factor ~2' caveat concrete",
+            "quadrature": {
+              "n": 240001,
+              "D_range_mm": [
+                0.0,
+                6.0
+              ]
+            }
+          },
+          "energy": {
+            "rate_mm_h": 2.0,
+            "E_flux_weighted_J": 3.880111802842971e-06,
+            "E_number_weighted_J": 6.991215758524863e-07,
+            "E_flux_weighted_uJ": 3.880111802842971,
+            "mean_fall_speed_m_s_flux_weighted": 2.440667989871523,
+            "note": "E_flux_weighted is the mean energy per IMPACT and is what the variance budget uses"
+          },
+          "band": {
+            "rate_mm_h": 2.0,
+            "eta": 0.1,
+            "F_clamped": 2145.2230061050022,
+            "E_flux_weighted_J": 3.880111802842971e-06,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.008323705105718298,
+            "energy_per_area_J_m2": 0.00012485557658577448,
+            "rho_g_plus_sigma_k2": 32349.1983637536,
+            "ring_variance_m2": 3.859618874688152e-09,
+            "ring_rms_height_mm": 0.062125830977848115,
+            "ring_rms_slope_rad": 0.03475963404125133,
+            "k_ring_rad_per_m": 559.5037280651488
+          },
+          "damping": {
+            "rate_mm_h": 2.0,
+            "power_in_W_m2": 0.008323705105718298,
+            "gravity_band_energy_J_m2": 0.76302123993161,
+            "gamma_per_s": 0.010908877328846515,
+            "tau_s": 0.15,
+            "gamma_tau": 0.0016363315993269771,
+            "gain_applied": 0.998366341607523,
+            "gain_per_8s_loop_not_applied": 0.9164286927242622,
+            "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+            "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded)."
+          },
+          "capillary_crossover": {
+            "l_c_m": 0.0027091418459143854,
+            "k_c_rad_per_m": 369.120576505835,
+            "lambda_c_m": 0.017022040241314648,
+            "c_min_m_s": 0.23055013124446544
+          },
+          "physics_chain": "R -> Lambda(R) -> N(D) -> v(D) -> F -> Ebar -> D0 -> k_ring -> sigma_ring^2 (eta is the only calibrated factor)"
+        },
+        "band": {
+          "k_ring_nominal_rad_per_m": 559.5037280651488,
+          "k_mean_effective_rad_per_m": 564.7292623869507,
+          "k_mean_effective_in_band_rad_per_m": 553.60829670358,
+          "lambda_ring_m": 0.011229925721688792,
+          "sigma_k_rad_per_m": 53.33333333333333,
+          "sigma_k_frac_of_band": 0.16666666666666666,
+          "k_band_rad_per_m": [
+            310.0,
+            630.0
+          ],
+          "band_width_frac_of_kmin": null,
+          "variance_target_m2": 3.859618874688152e-09,
+          "variance_realised_m2": 3.8721097028626075e-09,
+          "variance_realised_over_target": 1.0032362853898273,
+          "slope_variance_realised_rad2": 0.001245827308865004,
+          "rms_slope_realised_rad": 0.03529627896627354,
+          "rms_height_realised_mm": 0.06222627823405966,
+          "variance_fraction_inside_band": 0.8910031182663083,
+          "modes_carrying_band": 96425,
+          "budget": {
+            "rate_mm_h": 2.0,
+            "eta": 0.1,
+            "F_clamped": 2145.2230061050022,
+            "E_flux_weighted_J": 3.880111802842971e-06,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.008323705105718298,
+            "energy_per_area_J_m2": 0.00012485557658577448,
+            "rho_g_plus_sigma_k2": 32349.1983637536,
+            "ring_variance_m2": 3.859618874688152e-09,
+            "ring_rms_height_mm": 0.062125830977848115,
+            "ring_rms_slope_rad": 0.03475963404125133,
+            "k_ring_rad_per_m": 559.5037280651488
+          },
+          "isotropic": true,
+          "note": "rings carry no direction: the bump is direction-uniform, in contrast to the wind spectrum's cos^2 lobe (PIPELINE-V6 section 2).  The Gaussian in k is not hard-clipped: at the extreme rates the placement sits on the band edge, so the tail crosses 310/630 (containment fraction recorded)."
+        },
+        "damping": {
+          "rate_mm_h": 2.0,
+          "power_in_W_m2": 0.008323705105718298,
+          "gravity_band_energy_J_m2": 0.76302123993161,
+          "gamma_per_s": 0.010908877328846515,
+          "tau_s": 0.15,
+          "gamma_tau": 0.0016363315993269771,
+          "gain_applied": 0.998366341607523,
+          "gain_per_8s_loop_not_applied": 0.9164286927242622,
+          "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+          "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded).",
+          "m0_lowk_before_m2": 7.7779942908421e-05,
+          "m0_lowk_after_m2": 7.765287822900893e-05,
+          "sigma2_lowk_before_rad2": 0.002999999378036334,
+          "sigma2_lowk_after_rad2": 0.002995098478877205,
+          "applied": true
+        },
+        "realised": {
+          "m0_m2": 6.189972577588827e-05,
+          "Hs_m": 0.03147055151112246,
+          "sigma2_rad2": 0.0038336957432573695,
+          "rms_slope": 0.06191684539168133
+        },
+        "sigma2_breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0029950989836709436,
+          "ring_band_spectral_rad2": 0.001245827308865004,
+          "total_spectral_rad2": 0.004240926292535948,
+          "total_realised_rad2": 0.0038336957432573695,
+          "ring_share_of_total": 0.2937630184843501
+        },
+        "h_s_spectral_m": 0.035249227019605665,
+        "m0_spectral_m2": 7.765675034248114e-05
+      },
+      "R10": {
+        "name": "rain.rate_mm_h",
+        "value": 10.0,
+        "units": "mm/h",
+        "active": true,
+        "summary": {
+          "rate_mm_h": 10.0,
+          "active": true,
+          "lambda_per_mm": 2.528039507632077,
+          "lambda_per_m": 2528.039507632077,
+          "D_mean_mm": 0.3955634383802268,
+          "D0_mm": 1.4517178188554323,
+          "k_ring_rad_per_m": 422.2313802798,
+          "lambda_ring_m": 0.014880905590238008,
+          "k_ring_in_band": true,
+          "placement": {
+            "rate_mm_h": 10.0,
+            "D0_mm": 1.4517178188554323,
+            "t_placement": 0.48809055902380083,
+            "lambda_ring_mm": 14.880905590238008,
+            "lambda_ring_mm_clipped": 14.880905590238008,
+            "clipped_to_band": false,
+            "rule": "lambda = 10mm + 10mm * (D0-D0(R=1))/(D0(R=50)-D0(R=1)); the two observed band limits are the anchors, D0(R) is the interpolation variable (report section 3.4: bigger drops -> longer rings).  Modelling placement, not a calibration."
+          },
+          "flux": {
+            "rate_mm_h": 10.0,
+            "lambda_per_mm": 2.528039507632077,
+            "D0_mm": 1.4517178188554323,
+            "F_clamped": 4450.724936668668,
+            "F_unclamped": 4195.111445935827,
+            "F_validity_band_0p5_5mm": 3113.962626007699,
+            "F_table": 4200.0,
+            "F_ratio_clamped_to_table": 1.0596964134925402,
+            "rate_back_check_mm_h": 11.638604735791544,
+            "rate_back_check_rel": 0.1638604735791544,
+            "note": "F_clamped is the physical variant and the gate input; F_unclamped reproduces the report table; the 0.5-5 mm band restriction gives the report's own 'factor ~2' caveat concrete",
+            "quadrature": {
+              "n": 240001,
+              "D_range_mm": [
+                0.0,
+                6.0
+              ]
+            }
+          },
+          "energy": {
+            "rate_mm_h": 10.0,
+            "E_flux_weighted_J": 1.3348803852467548e-05,
+            "E_number_weighted_J": 2.9876880395872625e-06,
+            "E_flux_weighted_uJ": 13.348803852467547,
+            "mean_fall_speed_m_s_flux_weighted": 3.1061793171070518,
+            "note": "E_flux_weighted is the mean energy per IMPACT and is what the variance budget uses"
+          },
+          "band": {
+            "rate_mm_h": 10.0,
+            "eta": 0.1,
+            "F_clamped": 4450.724936668668,
+            "E_flux_weighted_J": 1.3348803852467548e-05,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.0594118541808761,
+            "energy_per_area_J_m2": 0.0008911778127131415,
+            "rho_g_plus_sigma_k2": 22646.112371494928,
+            "ring_variance_m2": 3.9352353202790035e-08,
+            "ring_rms_height_mm": 0.1983742755570642,
+            "ring_rms_slope_rad": 0.08375984418046462,
+            "k_ring_rad_per_m": 422.2313802798
+          },
+          "damping": {
+            "rate_mm_h": 10.0,
+            "power_in_W_m2": 0.0594118541808761,
+            "gravity_band_energy_J_m2": 0.76302123993161,
+            "gamma_per_s": 0.07786395852650342,
+            "tau_s": 0.15,
+            "gamma_tau": 0.011679593778975513,
+            "gain_applied": 0.9884552442781334,
+            "gain_per_8s_loop_not_applied": 0.5363803999601924,
+            "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+            "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded)."
+          },
+          "capillary_crossover": {
+            "l_c_m": 0.0027091418459143854,
+            "k_c_rad_per_m": 369.120576505835,
+            "lambda_c_m": 0.017022040241314648,
+            "c_min_m_s": 0.23055013124446544
+          },
+          "physics_chain": "R -> Lambda(R) -> N(D) -> v(D) -> F -> Ebar -> D0 -> k_ring -> sigma_ring^2 (eta is the only calibrated factor)"
+        },
+        "band": {
+          "k_ring_nominal_rad_per_m": 422.2313802798,
+          "k_mean_effective_rad_per_m": 428.77302749147435,
+          "k_mean_effective_in_band_rad_per_m": 430.442572121052,
+          "lambda_ring_m": 0.014880905590238008,
+          "sigma_k_rad_per_m": 53.33333333333333,
+          "sigma_k_frac_of_band": 0.16666666666666666,
+          "k_band_rad_per_m": [
+            310.0,
+            630.0
+          ],
+          "band_width_frac_of_kmin": null,
+          "variance_target_m2": 3.9352353202790035e-08,
+          "variance_realised_m2": 4.000571580810233e-08,
+          "variance_realised_over_target": 1.016602885269539,
+          "slope_variance_realised_rad2": 0.007465442354172591,
+          "rms_slope_realised_rad": 0.08640279135637106,
+          "rms_height_realised_mm": 0.20001428900981633,
+          "variance_fraction_inside_band": 0.9877499705172486,
+          "modes_carrying_band": 72783,
+          "budget": {
+            "rate_mm_h": 10.0,
+            "eta": 0.1,
+            "F_clamped": 4450.724936668668,
+            "E_flux_weighted_J": 1.3348803852467548e-05,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.0594118541808761,
+            "energy_per_area_J_m2": 0.0008911778127131415,
+            "rho_g_plus_sigma_k2": 22646.112371494928,
+            "ring_variance_m2": 3.9352353202790035e-08,
+            "ring_rms_height_mm": 0.1983742755570642,
+            "ring_rms_slope_rad": 0.08375984418046462,
+            "k_ring_rad_per_m": 422.2313802798
+          },
+          "isotropic": true,
+          "note": "rings carry no direction: the bump is direction-uniform, in contrast to the wind spectrum's cos^2 lobe (PIPELINE-V6 section 2).  The Gaussian in k is not hard-clipped: at the extreme rates the placement sits on the band edge, so the tail crosses 310/630 (containment fraction recorded)."
+        },
+        "damping": {
+          "rate_mm_h": 10.0,
+          "power_in_W_m2": 0.0594118541808761,
+          "gravity_band_energy_J_m2": 0.76302123993161,
+          "gamma_per_s": 0.07786395852650342,
+          "tau_s": 0.15,
+          "gamma_tau": 0.011679593778975513,
+          "gain_applied": 0.9884552442781334,
+          "gain_per_8s_loop_not_applied": 0.5363803999601924,
+          "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+          "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded).",
+          "m0_lowk_before_m2": 7.7779942908421e-05,
+          "m0_lowk_after_m2": 7.68819942804971e-05,
+          "sigma2_lowk_before_rad2": 0.002999999378036334,
+          "sigma2_lowk_after_rad2": 0.002965365454368243,
+          "applied": true
+        },
+        "realised": {
+          "m0_m2": 6.132074193244872e-05,
+          "Hs_m": 0.031323024613200745,
+          "sigma2_rad2": 0.009894407405099908,
+          "rms_slope": 0.09947063589371442
+        },
+        "sigma2_breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0029653512321723896,
+          "ring_band_spectral_rad2": 0.007465442354172591,
+          "total_spectral_rad2": 0.01043079358634498,
+          "total_realised_rad2": 0.009894407405099908,
+          "ring_share_of_total": 0.7157118288627291
+        },
+        "h_s_spectral_m": 0.03508207516445161,
+        "m0_spectral_m2": 7.692199986526454e-05
+      },
+      "R50": {
+        "name": "rain.rate_mm_h",
+        "value": 50.0,
+        "units": "mm/h",
+        "active": true,
+        "summary": {
+          "rate_mm_h": 50.0,
+          "active": true,
+          "lambda_per_mm": 1.8030183877173178,
+          "lambda_per_m": 1803.0183877173179,
+          "D_mean_mm": 0.5546255139782761,
+          "D0_mm": 2.0354756363002733,
+          "k_ring_rad_per_m": 314.1592653589793,
+          "lambda_ring_m": 0.02,
+          "k_ring_in_band": true,
+          "placement": {
+            "rate_mm_h": 50.0,
+            "D0_mm": 2.0354756363002733,
+            "t_placement": 1.0,
+            "lambda_ring_mm": 20.0,
+            "lambda_ring_mm_clipped": 20.0,
+            "clipped_to_band": false,
+            "rule": "lambda = 10mm + 10mm * (D0-D0(R=1))/(D0(R=50)-D0(R=1)); the two observed band limits are the anchors, D0(R) is the interpolation variable (report section 3.4: bigger drops -> longer rings).  Modelling placement, not a calibration."
+          },
+          "flux": {
+            "rate_mm_h": 50.0,
+            "lambda_per_mm": 1.8030183877173178,
+            "D0_mm": 2.0354756363002733,
+            "F_clamped": 8788.154628297725,
+            "F_unclamped": 8526.042817327809,
+            "F_validity_band_0p5_5mm": 7064.442868756689,
+            "F_table": 8600.0,
+            "F_ratio_clamped_to_table": 1.0218784451508982,
+            "rate_back_check_mm_h": 54.21277461243337,
+            "rate_back_check_rel": 0.08425549224866742,
+            "note": "F_clamped is the physical variant and the gate input; F_unclamped reproduces the report table; the 0.5-5 mm band restriction gives the report's own 'factor ~2' caveat concrete",
+            "quadrature": {
+              "n": 240001,
+              "D_range_mm": [
+                0.0,
+                6.0
+              ]
+            }
+          },
+          "energy": {
+            "rate_mm_h": 50.0,
+            "E_flux_weighted_J": 4.227904186870648e-05,
+            "E_number_weighted_J": 1.1631312843897602e-05,
+            "E_flux_weighted_uJ": 42.27904186870648,
+            "mean_fall_speed_m_s_flux_weighted": 3.8555872350837763,
+            "note": "E_flux_weighted is the mean energy per IMPACT and is what the variance budget uses"
+          },
+          "band": {
+            "rate_mm_h": 50.0,
+            "eta": 0.1,
+            "F_clamped": 8788.154628297725,
+            "E_flux_weighted_J": 4.227904186870648e-05,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.37155475747846617,
+            "energy_per_area_J_m2": 0.0055733213621769915,
+            "rho_g_plus_sigma_k2": 16916.115168784338,
+            "ring_variance_m2": 3.294681613696718e-07,
+            "ring_rms_height_mm": 0.5739931718841887,
+            "ring_rms_slope_rad": 0.18032527320020708,
+            "k_ring_rad_per_m": 314.1592653589793
+          },
+          "damping": {
+            "rate_mm_h": 50.0,
+            "power_in_W_m2": 0.37155475747846617,
+            "gravity_band_energy_J_m2": 0.76302123993161,
+            "gamma_per_s": 0.48695205065558705,
+            "tau_s": 0.15,
+            "gamma_tau": 0.07304280759833806,
+            "gain_applied": 0.9319292696608993,
+            "gain_per_8s_loop_not_applied": 0.020330838550449128,
+            "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+            "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded)."
+          },
+          "capillary_crossover": {
+            "l_c_m": 0.0027091418459143854,
+            "k_c_rad_per_m": 369.120576505835,
+            "lambda_c_m": 0.017022040241314648,
+            "c_min_m_s": 0.23055013124446544
+          },
+          "physics_chain": "R -> Lambda(R) -> N(D) -> v(D) -> F -> Ebar -> D0 -> k_ring -> sigma_ring^2 (eta is the only calibrated factor)"
+        },
+        "band": {
+          "k_ring_nominal_rad_per_m": 314.1592653589793,
+          "k_mean_effective_rad_per_m": 323.48472531217567,
+          "k_mean_effective_in_band_rad_per_m": 357.6064957288183,
+          "lambda_ring_m": 0.02,
+          "sigma_k_rad_per_m": 53.33333333333333,
+          "sigma_k_frac_of_band": 0.16666666666666666,
+          "k_band_rad_per_m": [
+            310.0,
+            630.0
+          ],
+          "band_width_frac_of_kmin": null,
+          "variance_target_m2": 3.294681613696718e-07,
+          "variance_realised_m2": 3.3207909493826024e-07,
+          "variance_realised_over_target": 1.0079246915930637,
+          "slope_variance_realised_rad2": 0.035671047990138996,
+          "rms_slope_realised_rad": 0.1888678055946513,
+          "rms_height_realised_mm": 0.5762630431827641,
+          "variance_fraction_inside_band": 0.5980256053375804,
+          "modes_carrying_band": 54728,
+          "budget": {
+            "rate_mm_h": 50.0,
+            "eta": 0.1,
+            "F_clamped": 8788.154628297725,
+            "E_flux_weighted_J": 4.227904186870648e-05,
+            "tau_s": 0.15,
+            "power_in_W_m2": 0.37155475747846617,
+            "energy_per_area_J_m2": 0.0055733213621769915,
+            "rho_g_plus_sigma_k2": 16916.115168784338,
+            "ring_variance_m2": 3.294681613696718e-07,
+            "ring_rms_height_mm": 0.5739931718841887,
+            "ring_rms_slope_rad": 0.18032527320020708,
+            "k_ring_rad_per_m": 314.1592653589793
+          },
+          "isotropic": true,
+          "note": "rings carry no direction: the bump is direction-uniform, in contrast to the wind spectrum's cos^2 lobe (PIPELINE-V6 section 2).  The Gaussian in k is not hard-clipped: at the extreme rates the placement sits on the band edge, so the tail crosses 310/630 (containment fraction recorded)."
+        },
+        "damping": {
+          "rate_mm_h": 50.0,
+          "power_in_W_m2": 0.37155475747846617,
+          "gravity_band_energy_J_m2": 0.76302123993161,
+          "gamma_per_s": 0.48695205065558705,
+          "tau_s": 0.15,
+          "gamma_tau": 0.07304280759833806,
+          "gain_applied": 0.9319292696608993,
+          "gain_per_8s_loop_not_applied": 0.020330838550449128,
+          "weight": "w(k)=1/(1+(k/310)^4) on the sub-band side only",
+          "note": "approximate FORM permitted by PIPELINE-V6 section 4; the magnitude is the first-order rate above, with no tuned constant.  In the windless verification scene there is nothing but the Cox-Munk floor to damp, so this is close to a no-op (recorded).",
+          "m0_lowk_before_m2": 7.7779942908421e-05,
+          "m0_lowk_after_m2": 7.248540500619721e-05,
+          "sigma2_lowk_before_rad2": 0.002999999378036334,
+          "sigma2_lowk_after_rad2": 0.0027957888937736536,
+          "applied": true
+        },
+        "realised": {
+          "m0_m2": 5.810761589005933e-05,
+          "Hs_m": 0.0304913406435491,
+          "sigma2_rad2": 0.037863331567194014,
+          "rms_slope": 0.19458502400543062
+        },
+        "sigma2_breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0027956738667936076,
+          "ring_band_spectral_rad2": 0.035671047990138996,
+          "total_spectral_rad2": 0.038466721856932604,
+          "total_realised_rad2": 0.037863331567194014,
+          "ring_share_of_total": 0.927322274115496
+        },
+        "h_s_spectral_m": 0.03413326395298615,
+        "m0_spectral_m2": 7.281748175526398e-05
+      }
+    },
+    "analytic_table": {
+      "rate_mm_h": [
+        1.0,
+        2.0,
+        5.0,
+        10.0,
+        25.0,
+        50.0
+      ],
+      "k_ring_rad_per_m": [
+        628.3185307179587,
+        559.5037280651488,
+        477.5760446338767,
+        422.2313802798,
+        357.36351891405474,
+        314.1592653589793
+      ],
+      "lambda_ring_mm": [
+        10.0,
+        11.229925721688792,
+        13.156408027116298,
+        14.880905590238008,
+        17.582055734935498,
+        20.0
+      ],
+      "F_clamped": [
+        1539.6988133589987,
+        2145.2230061050022,
+        3271.4676600516614,
+        4450.724936668668,
+        6593.429408181769,
+        8788.154628297725
+      ],
+      "Ebar_uJ": [
+        2.2354766929853414,
+        3.880111802842971,
+        7.90620088148699,
+        13.348803852467547,
+        26.06452672877119,
+        42.27904186870648
+      ],
+      "band_variance_m2": [
+        1.3503371372462274e-09,
+        3.859618874688152e-09,
+        1.479025432704969e-08,
+        3.9352353202790035e-08,
+        1.356388226621517e-07,
+        3.294681613696718e-07
+      ]
+    }
+  },
+  "sigma2_breakdown": {
+    "definition": "sigma2 = integral k^2 S dk over the resolved band; 'calm floor' is the windless Cox-Munk-calibrated background, 'rain band' is the ring-wave contribution (PIPELINE-V6 section 7 asks for this split)",
+    "rows": [
+      {
+        "rate_mm_h": 0.0,
+        "sigma2_spectral_rad2": 0.0029999999103322373,
+        "sigma2_realised_rad2": 0.0025916458185727778,
+        "rms_slope_realised_rad": 0.050908209736473524,
+        "Hs_spectral_m": 0.03527717515063659,
+        "m0_spectral_m2": 7.77799429130432e-05,
+        "ring_band_variance_m2": null,
+        "ring_band_slope_variance_rad2": null,
+        "breakdown": null
+      },
+      {
+        "rate_mm_h": 2.0,
+        "sigma2_spectral_rad2": 0.004240926292535948,
+        "sigma2_realised_rad2": 0.0038336957432573695,
+        "rms_slope_realised_rad": 0.06191684539168133,
+        "Hs_spectral_m": 0.035249227019605665,
+        "m0_spectral_m2": 7.765675034248114e-05,
+        "ring_band_variance_m2": 3.8721097028626075e-09,
+        "ring_band_slope_variance_rad2": 0.001245827308865004,
+        "breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0029950989836709436,
+          "ring_band_spectral_rad2": 0.001245827308865004,
+          "total_spectral_rad2": 0.004240926292535948,
+          "total_realised_rad2": 0.0038336957432573695,
+          "ring_share_of_total": 0.2937630184843501
+        }
+      },
+      {
+        "rate_mm_h": 10.0,
+        "sigma2_spectral_rad2": 0.01043079358634498,
+        "sigma2_realised_rad2": 0.009894407405099908,
+        "rms_slope_realised_rad": 0.09947063589371442,
+        "Hs_spectral_m": 0.03508207516445161,
+        "m0_spectral_m2": 7.692199986526454e-05,
+        "ring_band_variance_m2": 4.000571580810233e-08,
+        "ring_band_slope_variance_rad2": 0.007465442354172591,
+        "breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0029653512321723896,
+          "ring_band_spectral_rad2": 0.007465442354172591,
+          "total_spectral_rad2": 0.01043079358634498,
+          "total_realised_rad2": 0.009894407405099908,
+          "ring_share_of_total": 0.7157118288627291
+        }
+      },
+      {
+        "rate_mm_h": 50.0,
+        "sigma2_spectral_rad2": 0.038466721856932604,
+        "sigma2_realised_rad2": 0.037863331567194014,
+        "rms_slope_realised_rad": 0.19458502400543062,
+        "Hs_spectral_m": 0.03413326395298615,
+        "m0_spectral_m2": 7.281748175526398e-05,
+        "ring_band_variance_m2": 3.3207909493826024e-07,
+        "ring_band_slope_variance_rad2": 0.035671047990138996,
+        "breakdown": {
+          "calm_floor_spectral_rad2": 0.0029999999103322373,
+          "after_damping_spectral_rad2": 0.0027956738667936076,
+          "ring_band_spectral_rad2": 0.035671047990138996,
+          "total_spectral_rad2": 0.038466721856932604,
+          "total_realised_rad2": 0.037863331567194014,
+          "ring_share_of_total": 0.927322274115496
+        }
+      }
+    ],
+    "cox_munk_floor_reference": 0.003
+  },
+  "state": {
+    "R00": {
+      "patch_S_m": 1.2,
+      "dx_m": 0.0005859375,
+      "grid": [
+        2048,
+        2048
+      ],
+      "seed": 2610463815026170101,
+      "spectrum_after": {
+        "m0_m2": 7.77799429130432e-05,
+        "Hs_m": 0.03527717515063659,
+        "sigma2_rad2": 0.0029999999103322373,
+        "rms_slope": 0.054772254931965664,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0006009147845310663,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "calm_floor_spectral": {
+        "m0_m2": 7.77799429130432e-05,
+        "Hs_m": 0.03527717515063659,
+        "sigma2_rad2": 0.0029999999103322373,
+        "rms_slope": 0.054772254931965664,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0006009147845310663,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "realised": {
+        "m0_m2": 6.199714207535998e-05,
+        "Hs_m": 0.03149530557409722,
+        "sigma2_rad2": 0.0025916458185727778,
+        "rms_slope": 0.050908209736473524
+      },
+      "loop_maxdiff_h": 0.0,
+      "H0_max_abs_diff_vs_v5": 0.0,
+      "omega_q_max_abs_diff_vs_v5": 0.0,
+      "h_max_abs_diff_vs_v5": 0.0,
+      "build_time_s": 23.423049211502075
+    },
+    "R02": {
+      "patch_S_m": 1.2,
+      "dx_m": 0.0005859375,
+      "grid": [
+        2048,
+        2048
+      ],
+      "seed": 2610463815026170101,
+      "spectrum_after": {
+        "m0_m2": 7.765675034248114e-05,
+        "Hs_m": 0.035249227019605665,
+        "sigma2_rad2": 0.004240926292535948,
+        "rms_slope": 0.06512239470824109,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0005999331084573158,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "calm_floor_spectral": {
+        "m0_m2": 7.77799429130432e-05,
+        "Hs_m": 0.03527717515063659,
+        "sigma2_rad2": 0.0029999999103322373,
+        "rms_slope": 0.054772254931965664,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0006009147845310663,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "realised": {
+        "m0_m2": 6.189972577588827e-05,
+        "Hs_m": 0.03147055151112246,
+        "sigma2_rad2": 0.0038336957432573695,
+        "rms_slope": 0.06191684539168133
+      },
+      "loop_maxdiff_h": 0.0,
+      "H0_max_abs_diff_vs_v5": 35.95386718885808,
+      "omega_q_max_abs_diff_vs_v5": 5336.780520285661,
+      "h_max_abs_diff_vs_v5": 0.0002918243408203125,
+      "build_time_s": 21.914270162582397
+    },
+    "R10": {
+      "patch_S_m": 1.2,
+      "dx_m": 0.0005859375,
+      "grid": [
+        2048,
+        2048
+      ],
+      "seed": 2610463815026170101,
+      "spectrum_after": {
+        "m0_m2": 7.692199986526454e-05,
+        "Hs_m": 0.03508207516445161,
+        "sigma2_rad2": 0.01043079358634498,
+        "rms_slope": 0.10213125665703414,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0005939773897839154,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "calm_floor_spectral": {
+        "m0_m2": 7.77799429130432e-05,
+        "Hs_m": 0.03527717515063659,
+        "sigma2_rad2": 0.0029999999103322373,
+        "rms_slope": 0.054772254931965664,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0006009147845310663,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "realised": {
+        "m0_m2": 6.132074193244872e-05,
+        "Hs_m": 0.031323024613200745,
+        "sigma2_rad2": 0.009894407405099908,
+        "rms_slope": 0.09947063589371442
+      },
+      "loop_maxdiff_h": 0.0,
+      "H0_max_abs_diff_vs_v5": 254.71621093869808,
+      "omega_q_max_abs_diff_vs_v5": 5336.780520285661,
+      "h_max_abs_diff_vs_v5": 0.000903422711417079,
+      "build_time_s": 21.79704260826111
+    },
+    "R50": {
+      "patch_S_m": 1.2,
+      "dx_m": 0.0005859375,
+      "grid": [
+        2048,
+        2048
+      ],
+      "seed": 2610463815026170101,
+      "spectrum_after": {
+        "m0_m2": 7.281748175526398e-05,
+        "Hs_m": 0.03413326395298615,
+        "sigma2_rad2": 0.038466721856932604,
+        "rms_slope": 0.19612934981010008,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0005600099894504057,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "calm_floor_spectral": {
+        "m0_m2": 7.77799429130432e-05,
+        "Hs_m": 0.03527717515063659,
+        "sigma2_rad2": 0.0029999999103322373,
+        "rms_slope": 0.054772254931965664,
+        "peak": {
+          "k_peak_rad_per_m": 5.24961537251958,
+          "lambda_peak_m": 1.1968848879996972,
+          "variance_density_peak": 0.0006009147845310663,
+          "kmin_rad_per_m": 5.235987755982989,
+          "kmax_rad_per_m": 5361.651462126581,
+          "peak_is_at_kmin": true
+        }
+      },
+      "realised": {
+        "m0_m2": 5.810761589005933e-05,
+        "Hs_m": 0.0304913406435491,
+        "sigma2_rad2": 0.037863331567194014,
+        "rms_slope": 0.19458502400543062
+      },
+      "loop_maxdiff_h": 0.0,
+      "H0_max_abs_diff_vs_v5": 1523.917734375032,
+      "omega_q_max_abs_diff_vs_v5": 5336.780520285661,
+      "h_max_abs_diff_vs_v5": 0.002864368259906769,
+      "build_time_s": 22.36520528793335
+    }
+  },
+  "transport": {
+    "method": "det.py det_frame (UNCHANGED), Q=49, sigma=0.75px, no clamp / no renormalisation",
+    "v5_calm_baseline": {
+      "mean": 1.0000001192092896,
+      "stats": {
+        "shape": [
+          2048,
+          2048
+        ],
+        "dtype": "float32",
+        "mean": 0.9999999999974278,
+        "p50": 0.9958510994911194,
+        "p99": 1.186976180076599,
+        "p99_9": 1.293047316432005,
+        "max": 1.3682242631912231,
+        "min": 0.8052677512168884,
+        "mean_abs_dev_from_1": 2.5721647034515627e-12,
+        "pass_mean_1": true
+      },
+      "det_time_s": 94.9426953792572,
+      "det_info": {
+        "Q": 49,
+        "ior": 1.33434,
+        "disc_rad": 0.003952499999999999,
+        "sigma_px": 0.75,
+        "total_rays": 205520896.0,
+        "divisor_analytical": 49.0,
+        "clamp": "none",
+        "renormalization": "none (mean~1 by energy conservation)"
+      },
+      "file": "C-baseline-v5-calm.npy"
+    },
+    "per_rate": {
+      "R00": {
+        "shape": [
+          2048,
+          2048
+        ],
+        "dtype": "float32",
+        "mean": 0.9999999999974278,
+        "p50": 0.9958510994911194,
+        "p99": 1.186976180076599,
+        "p99_9": 1.293047316432005,
+        "max": 1.3682242631912231,
+        "min": 0.8052677512168884,
+        "mean_abs_dev_from_1": 2.5721647034515627e-12,
+        "pass_mean_1": true,
+        "det_time_s": 84.32425665855408,
+        "det_info": {
+          "Q": 49,
+          "ior": 1.33434,
+          "disc_rad": 0.003952499999999999,
+          "sigma_px": 0.75,
+          "total_rays": 205520896.0,
+          "divisor_analytical": 49.0,
+          "clamp": "none",
+          "renormalization": "none (mean~1 by energy conservation)"
+        },
+        "file": "C-rain-R00.npy"
+      },
+      "R02": {
+        "shape": [
+          2048,
+          2048
+        ],
+        "dtype": "float32",
+        "mean": 0.9999999999869886,
+        "p50": 0.9254186153411865,
+        "p99": 2.454398367404935,
+        "p99_9": 3.339971699714777,
+        "max": 6.283862590789795,
+        "min": 0.022777875885367393,
+        "mean_abs_dev_from_1": 1.3011369759396985e-11,
+        "pass_mean_1": true,
+        "det_time_s": 78.90799832344055,
+        "det_info": {
+          "Q": 49,
+          "ior": 1.33434,
+          "disc_rad": 0.003952499999999999,
+          "sigma_px": 0.75,
+          "total_rays": 205520896.0,
+          "divisor_analytical": 49.0,
+          "clamp": "none",
+          "renormalization": "none (mean~1 by energy conservation)"
+        },
+        "file": "C-rain-R02.npy"
+      },
+      "R10": {
+        "shape": [
+          2048,
+          2048
+        ],
+        "dtype": "float32",
+        "mean": 1.0000000000289315,
+        "p50": 0.9409072697162628,
+        "p99": 2.172987308502192,
+        "p99_9": 2.839112148523413,
+        "max": 6.07251501083374,
+        "min": 0.06732861697673798,
+        "mean_abs_dev_from_1": 2.893152384331188e-11,
+        "pass_mean_1": true,
+        "det_time_s": 78.77626585960388,
+        "det_info": {
+          "Q": 49,
+          "ior": 1.33434,
+          "disc_rad": 0.003952499999999999,
+          "sigma_px": 0.75,
+          "total_rays": 205520896.0,
+          "divisor_analytical": 49.0,
+          "clamp": "none",
+          "renormalization": "none (mean~1 by energy conservation)"
+        },
+        "file": "C-rain-R10.npy"
+      },
+      "R50": {
+        "shape": [
+          2048,
+          2048
+        ],
+        "dtype": "float32",
+        "mean": 1.0000000000033715,
+        "p50": 0.9648417532444,
+        "p99": 1.8594448208808896,
+        "p99_9": 2.3461216146945967,
+        "max": 4.681847095489502,
+        "min": 0.18430426716804504,
+        "mean_abs_dev_from_1": 3.3715252811816754e-12,
+        "pass_mean_1": true,
+        "det_time_s": 78.82016062736511,
+        "det_info": {
+          "Q": 49,
+          "ior": 1.33434,
+          "disc_rad": 0.003952499999999999,
+          "sigma_px": 0.75,
+          "total_rays": 205520896.0,
+          "divisor_analytical": 49.0,
+          "clamp": "none",
+          "renormalization": "none (mean~1 by energy conservation)"
+        },
+        "file": "C-rain-R50.npy"
+      }
+    }
+  },
+  "stills": {
+    "individual": {
+      "R00": "still-R00.png",
+      "R02": "still-R02.png",
+      "R10": "still-R10.png",
+      "R50": "still-R50.png"
+    },
+    "panel": "panel-R00-R02-R10-R50.png",
+    "crop": {
+      "cy": 188,
+      "cx": 452,
+      "size": 240,
+      "score": 42.819878472222214,
+      "box": [
+        332,
+        68,
+        240,
+        240
+      ],
+      "file": "crop-zoom-R00-R02-R10-R50.png",
+      "zoom": 3.0,
+      "rows": [
+        "delivered stills (magnified)",
+        "C master 1:1 (transport)"
+      ],
+      "c_master_window": {
+        "x0": 925,
+        "y0": 258,
+        "w": 669,
+        "h": 912,
+        "grid": 2048
+      },
+      "physical_window_m": [
+        0.5420408163265306,
+        0.15139146567717995,
+        0.39183673469387753,
+        0.5343228200371057
+      ],
+      "ring_wavelength_in_window_px": {
+        "still_735px": 27.5625,
+        "C_master_2048px": 27.55156950672646
+      },
+      "note": "crop window chosen deterministically: the 240x240 px region where |grey(R=10)-grey(R=0)| peaks after a 48 px box average.  Row 2 is the same physical window of the C master at 1:1, so the ring grain there is not a JPEG/upscale artefact; row 1 is the literal magnification of the delivered still.",
+      "selection_source_rate_mm_h": 10.0
+    },
+    "metrics": {
+      "R00": {
+        "linear_mean_pre_tonemap": 0.16761813428168995,
+        "linear_luminance_mean": 0.18827688865181672,
+        "crush_rate_linear_lt_0.02": 0.012542753650625372,
+        "blowout_rate_aces_gt_0.98": 0.0,
+        "linear_rgb_mean": [
+          0.10861055451227983,
+          0.2126312269251614,
+          0.181612621407624
+        ],
+        "aces_luminance_max": 0.8402910962443665,
+        "file": "still-R00.png",
+        "label": "R = 0 mm/h",
+        "vs_v5_baseline": {
+          "max_abs_diff_uint8": 0,
+          "mean_abs_diff_uint8": 0.0,
+          "identical": true
+        }
+      },
+      "R02": {
+        "linear_mean_pre_tonemap": 0.16746303549893501,
+        "linear_luminance_mean": 0.1881218116617938,
+        "crush_rate_linear_lt_0.02": 0.012855754546716646,
+        "blowout_rate_aces_gt_0.98": 0.0,
+        "linear_rgb_mean": [
+          0.10850620146431333,
+          0.21246508162851116,
+          0.18141782340397944
+        ],
+        "aces_luminance_max": 0.8160422206741597,
+        "file": "still-R02.png",
+        "label": "R = 2 mm/h",
+        "vs_v5_baseline": null
+      },
+      "R10": {
+        "linear_mean_pre_tonemap": 0.16758879578217095,
+        "linear_luminance_mean": 0.1882429527898187,
+        "crush_rate_linear_lt_0.02": 0.013698837605543145,
+        "blowout_rate_aces_gt_0.98": 0.0,
+        "linear_rgb_mean": [
+          0.1086248846922894,
+          0.21258520344106818,
+          0.18155629921316704
+        ],
+        "aces_luminance_max": 0.8183716067544647,
+        "file": "still-R10.png",
+        "label": "R = 10 mm/h",
+        "vs_v5_baseline": null
+      },
+      "R50": {
+        "linear_mean_pre_tonemap": 0.16771130912541363,
+        "linear_luminance_mean": 0.18839442393851463,
+        "crush_rate_linear_lt_0.02": 0.014107758131081746,
+        "blowout_rate_aces_gt_0.98": 0.0,
+        "linear_rgb_mean": [
+          0.10857726470394059,
+          0.2127899011158826,
+          0.18176676155641133
+        ],
+        "aces_luminance_max": 0.8625852224252044,
+        "file": "still-R50.png",
+        "label": "R = 50 mm/h",
+        "vs_v5_baseline": null
+      }
+    },
+    "v5_calm_baseline": {
+      "linear_mean_pre_tonemap": 0.16761813428168995,
+      "linear_luminance_mean": 0.18827688865181672,
+      "crush_rate_linear_lt_0.02": 0.012542753650625372,
+      "blowout_rate_aces_gt_0.98": 0.0,
+      "linear_rgb_mean": [
+        0.10861055451227983,
+        0.2126312269251614,
+        0.181612621407624
+      ],
+      "aces_luminance_max": 0.8402910962443665,
+      "file": "still-v5-calm.png"
+    },
+    "metrics_definitions": {
+      "crush": "fraction of pixels with rec709 linear luminance (pre-ACES, incl. exposure) < 0.02",
+      "blow": "fraction of pixels with rec709 ACES luminance > 0.98 (post-ACES, pre-sRGB-encode)"
+    },
+    "display": {
+      "E_v6": 2.708272210034262,
+      "E_v3": 2.2,
+      "level_ratio": 1.2310328227428462,
+      "flat_water_direct_lum_v3": 0.5557302479375936,
+      "flat_water_direct_lum_v5": 0.45143414348561334,
+      "note": "same display-level normalisation as v5, evaluated once at the calm reference condition and held fixed for all R so the differences between the four stills are physical (the ring band), not exposure"
+    }
+  },
+  "gates": {
+    "gate1_backward_compatible_R0": {
+      "gate": "R=0 identical to the v5 baseline (C mean and stills), PIPELINE-V6 section 6 item 1",
+      "v5_calm_C_mean": 1.0000001192092896,
+      "v6_R0_C_mean": 0.9999999999974278,
+      "C_mean_abs_diff": 1.192118617154847e-07,
+      "C_array_vs_v5": {
+        "max_abs_diff": 0.0,
+        "mean_abs_diff": 0.0,
+        "identical": true
+      },
+      "still_vs_v5": {
+        "max_abs_diff_uint8": 0,
+        "mean_abs_diff_uint8": 0.0,
+        "identical": true
+      },
+      "state_H0_identical": true,
+      "state_omega_identical": true,
+      "state_h_identical": true,
+      "pass": true
+    },
+    "gate2_impact_flux_F": {
+      "gate": "F(R) integral vs report section 3.3 table, factor 1.5",
+      "tolerance_factor": 1.5,
+      "rows": {
+        "R1": {
+          "F_clamped": 1539.6988133589987,
+          "F_unclamped": 1297.3533950003014,
+          "F_table": 1300.0,
+          "ratio": 1.184383702583845,
+          "dev_rel": 0.18438370258384507,
+          "pass_factor_1p5": true,
+          "F_validity_band_0p5_5mm": 751.979980599185,
+          "rate_back_check_mm_h": 1.18007607380699
+        },
+        "R10": {
+          "F_clamped": 4450.724936668668,
+          "F_unclamped": 4195.111445935827,
+          "F_table": 4200.0,
+          "ratio": 1.0596964134925402,
+          "dev_rel": 0.05969641349254018,
+          "pass_factor_1p5": true,
+          "F_validity_band_0p5_5mm": 3113.962626007699,
+          "rate_back_check_mm_h": 11.638604735791544
+        },
+        "R25": {
+          "F_clamped": 6593.429408181769,
+          "F_unclamped": 6333.879400320568,
+          "F_table": 6400.0,
+          "ratio": 1.0302233450284013,
+          "dev_rel": 0.030223345028401294,
+          "pass_factor_1p5": true,
+          "F_validity_band_0p5_5mm": 5034.628003660921,
+          "rate_back_check_mm_h": 28.16721856012669
+        },
+        "R50": {
+          "F_clamped": 8788.154628297725,
+          "F_unclamped": 8526.042817327809,
+          "F_table": 8600.0,
+          "ratio": 1.0218784451508982,
+          "dev_rel": 0.021878445150898207,
+          "pass_factor_1p5": true,
+          "F_validity_band_0p5_5mm": 7064.442868756689,
+          "rate_back_check_mm_h": 54.21277461243337
+        }
+      },
+      "pass": true
+    },
+    "gate3_ring_wavenumber": {
+      "gate": "k_ring(R) strictly decreasing and inside 310-630 rad/m",
+      "band_rad_per_m": [
+        310.0,
+        630.0
+      ],
+      "rows": [
+        {
+          "rate_mm_h": 1.0,
+          "D0_mm": 0.8951219512195122,
+          "lambda_ring_mm": 10.0,
+          "k_ring_rad_per_m": 628.3185307179587,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 1.5,
+          "D0_mm": 0.9746784678456847,
+          "lambda_ring_mm": 10.697647735671922,
+          "k_ring_rad_per_m": 587.3427002300649,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 2.0,
+          "D0_mm": 1.035376984129855,
+          "lambda_ring_mm": 11.229925721688792,
+          "k_ring_rad_per_m": 559.5037280651488,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 3.0,
+          "D0_mm": 1.127399066864013,
+          "lambda_ring_mm": 12.03688661406878,
+          "k_ring_rad_per_m": 521.9942256360348,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 5.0,
+          "D0_mm": 1.2550641037535686,
+          "lambda_ring_mm": 13.156408027116298,
+          "k_ring_rad_per_m": 477.5760446338767,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 7.5,
+          "D0_mm": 1.3666115058714023,
+          "lambda_ring_mm": 14.13459052941543,
+          "k_ring_rad_per_m": 444.5254564752816,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 10.0,
+          "D0_mm": 1.4517178188554323,
+          "lambda_ring_mm": 14.880905590238008,
+          "k_ring_rad_per_m": 422.2313802798,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 15.0,
+          "D0_mm": 1.5807433808304625,
+          "lambda_ring_mm": 16.012357732350324,
+          "k_ring_rad_per_m": 392.3960113934657,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 20.0,
+          "D0_mm": 1.6791848474348352,
+          "lambda_ring_mm": 16.87561154467436,
+          "k_ring_rad_per_m": 372.3234142090955,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 25.0,
+          "D0_mm": 1.7597444710016534,
+          "lambda_ring_mm": 17.582055734935498,
+          "k_ring_rad_per_m": 357.36351891405474,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 30.0,
+          "D0_mm": 1.8284271903930918,
+          "lambda_ring_mm": 18.18434886811,
+          "k_ring_rad_per_m": 345.5270987568021,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 40.0,
+          "D0_mm": 1.9422932716206769,
+          "lambda_ring_mm": 19.182864352536406,
+          "k_ring_rad_per_m": 327.54155957677966,
+          "in_band": true
+        },
+        {
+          "rate_mm_h": 50.0,
+          "D0_mm": 2.0354756363002733,
+          "lambda_ring_mm": 20.0,
+          "k_ring_rad_per_m": 314.1592653589793,
+          "in_band": true
+        }
+      ],
+      "strictly_decreasing": true,
+      "all_inside_band": true,
+      "pass": true
+    },
+    "gate4_band_variance_monotone": {
+      "gate": "ring-band variance strictly increasing with R (PIPELINE-V6 section 6 item 4)",
+      "stills": [
+        {
+          "rate_mm_h": 2.0,
+          "band_variance_m2": 3.8721097028626075e-09
+        },
+        {
+          "rate_mm_h": 10.0,
+          "band_variance_m2": 4.000571580810233e-08
+        },
+        {
+          "rate_mm_h": 50.0,
+          "band_variance_m2": 3.3207909493826024e-07
+        }
+      ],
+      "analytic_range": [
+        {
+          "rate_mm_h": 1.0,
+          "band_variance_m2": 1.3503371372462274e-09
+        },
+        {
+          "rate_mm_h": 2.0,
+          "band_variance_m2": 3.859618874688152e-09
+        },
+        {
+          "rate_mm_h": 5.0,
+          "band_variance_m2": 1.479025432704969e-08
+        },
+        {
+          "rate_mm_h": 10.0,
+          "band_variance_m2": 3.9352353202790035e-08
+        },
+        {
+          "rate_mm_h": 25.0,
+          "band_variance_m2": 1.356388226621517e-07
+        },
+        {
+          "rate_mm_h": 50.0,
+          "band_variance_m2": 3.294681613696718e-07
+        }
+      ],
+      "strictly_increasing_stills": true,
+      "strictly_increasing_analytic": true,
+      "pass": true
+    },
+    "gate5_energy_and_tone": {
+      "gate": "mean(C)=1 (1e-3) for every master; crush/blow not implausibly worse than the v5 baseline (PIPELINE-V6 section 6 item 5)",
+      "C_mean_per_master": {
+        "R00": {
+          "mean": 0.9999999999974278,
+          "abs_dev": 2.5721647034515627e-12,
+          "pass": true
+        },
+        "R02": {
+          "mean": 0.9999999999869886,
+          "abs_dev": 1.3011369759396985e-11,
+          "pass": true
+        },
+        "R10": {
+          "mean": 1.0000000000289315,
+          "abs_dev": 2.893152384331188e-11,
+          "pass": true
+        },
+        "R50": {
+          "mean": 1.0000000000033715,
+          "abs_dev": 3.3715252811816754e-12,
+          "pass": true
+        }
+      },
+      "C_mean_pass": true,
+      "tone_rows": {
+        "R00": {
+          "crush": 0.012542753650625372,
+          "blow": 0.0,
+          "vs_v5_calm_crush": 0.012542753650625372,
+          "vs_v5_calm_blow": 0.0,
+          "lum_mean": 0.18827688865181672
+        },
+        "R02": {
+          "crush": 0.012855754546716646,
+          "blow": 0.0,
+          "vs_v5_calm_crush": 0.012542753650625372,
+          "vs_v5_calm_blow": 0.0,
+          "lum_mean": 0.1881218116617938
+        },
+        "R10": {
+          "crush": 0.013698837605543145,
+          "blow": 0.0,
+          "vs_v5_calm_crush": 0.012542753650625372,
+          "vs_v5_calm_blow": 0.0,
+          "lum_mean": 0.1882429527898187
+        },
+        "R50": {
+          "crush": 0.014107758131081746,
+          "blow": 0.0,
+          "vs_v5_calm_crush": 0.012542753650625372,
+          "vs_v5_calm_blow": 0.0,
+          "lum_mean": 0.18839442393851463
+        }
+      },
+      "limits": {
+        "crush_limit": 0.032542753650625374,
+        "blow_limit": 0.002,
+        "rule": "crush <= max(1.5x v5-calm crush, v5-calm crush + 0.02) and blow <= v5-calm blow + 0.002; the v5 design reference 7.9% crush is recorded in crush_rows for context"
+      },
+      "crush_pass": true,
+      "blow_pass": true,
+      "pass": true
+    },
+    "gate6_single_calibration_constant": {
+      "gate": "the only non-derived constant of this chunk is eta (PIPELINE-V6 section 6 item 6)",
+      "name": "RING_ETA (v6_physics.RING_ETA)",
+      "value": 0.1,
+      "units": "-",
+      "meaning": "impact -> ring-wave energy conversion efficiency",
+      "role": "sigma_ring^2 = eta * F(R) * Ebar(R) * tau / (rho g + sigma k_ring^2)",
+      "basis": "impact -> ring-wave energy conversion efficiency.  The report derives everything else in the rain chain (Lambda(R), v(D), F(R), D0(R), the k band, the lifetime) but not this.  Value 0.10: about a tenth of the impact kinetic energy survives into the ring band after the cavity, crown and Worthington-jet/splash phase -- which PIPELINE-V6 section 8 explicitly excludes from the model, so that energy is lost by construction.  Order-of-magnitude calibration, NOT derived; the sensitivity is recorded in numbers-v6.json (eta 0.03/0.10/0.30).",
+      "sensitivity": {
+        "R2": {
+          "eta_0.03": {
+            "ring_variance_m2": 1.1578856624064458e-09,
+            "ring_rms_slope_rad": 0.019038635655017812,
+            "ring_rms_height_mm": 0.03402771903032065
+          },
+          "eta_0.1": {
+            "ring_variance_m2": 3.859618874688152e-09,
+            "ring_rms_slope_rad": 0.03475963404125133,
+            "ring_rms_height_mm": 0.062125830977848115
+          },
+          "eta_0.3": {
+            "ring_variance_m2": 1.1578856624064455e-08,
+            "ring_rms_slope_rad": 0.060205452211948,
+            "ring_rms_height_mm": 0.10760509571606938
+          }
+        },
+        "R10": {
+          "eta_0.03": {
+            "ring_variance_m2": 1.180570596083701e-08,
+            "ring_rms_slope_rad": 0.045877156070758277,
+            "ring_rms_height_mm": 0.10865406555134975
+          },
+          "eta_0.1": {
+            "ring_variance_m2": 3.9352353202790035e-08,
+            "ring_rms_slope_rad": 0.08375984418046462,
+            "ring_rms_height_mm": 0.1983742755570642
+          },
+          "eta_0.3": {
+            "ring_variance_m2": 1.1805705960837011e-07,
+            "ring_rms_slope_rad": 0.14507630575461705,
+            "ring_rms_height_mm": 0.3435943241795041
+          }
+        },
+        "R50": {
+          "eta_0.03": {
+            "ring_variance_m2": 9.884044841090155e-08,
+            "ring_rms_slope_rad": 0.09876821982003521,
+            "ring_rms_height_mm": 0.31438900809491027
+          },
+          "eta_0.1": {
+            "ring_variance_m2": 3.294681613696718e-07,
+            "ring_rms_slope_rad": 0.18032527320020708,
+            "ring_rms_height_mm": 0.5739931718841887
+          },
+          "eta_0.3": {
+            "ring_variance_m2": 9.884044841090156e-07,
+            "ring_rms_slope_rad": 0.3123325350714971,
+            "ring_rms_height_mm": 0.9941853369010306
+          }
+        }
+      },
+      "derived_quantities": [
+        "Lambda(R) = 4.1 R^-0.21",
+        "N(D) = N0 exp(-Lambda D)",
+        "v(D) = 9.65 - 10.3 exp(-0.6 D)",
+        "F(R) = int N v dD",
+        "D0(R) = 3.67/Lambda",
+        "Dmean(R) = 1/Lambda",
+        "k_ring(R) (monotone placement from D0, anchored to the observed 1-2 cm band)",
+        "Ebar(R) flux-weighted 1/2 m v^2",
+        "tau = 150 ms (report 3.4)",
+        "band 310-630 rad/m",
+        "omega^2 = gk + (sigma/rho)k^3"
+      ],
+      "not_calibrated_here": "no other fitted number is introduced in chunk 2.  The inherited v5 calibrations (turbidity scale, scattering-blur proportionality, b_w(550) anchor, display-level normalisation) are unchanged and listed under inherited_calibrations_v5.",
+      "pass": true
+    }
+  },
+  "approximations_and_design_choices": [
+    {
+      "item": "ring placement rule k_ring(R)",
+      "statement": "report 3.4 gives the observed 1-2 cm ring band and the monotone 'bigger drops -> longer rings' behaviour, but no closed-form frequency law.  The placement used is lambda = 10 mm + 10 mm * (D0-D0(R=1))/(D0(R=50)-D0(R=1)): the two observed band limits are the anchors and D0(R) is the interpolation variable.  It reproduces k(10 mm/h) = 422 rad/m vs the design's ~420.  Modelling choice, not a calibration constant.",
+      "kind": "placement_rule"
+    },
+    {
+      "item": "ring band energy -> height variance",
+      "statement": "E/(rho g + sigma k^2) converts an energy per unit area into a height variance using the deep-water linear energy density; evaluated at k_ring (the band is narrow, so this is a band-centre approximation).",
+      "kind": "approximation"
+    },
+    {
+      "item": "lifetime tau",
+      "statement": "tau = 150 ms is the impact-process duration measured in report 3.4, used as the mean ring lifetime as the design instructs; viscous decay is folded into it (no separate beta).",
+      "kind": "report_value"
+    },
+    {
+      "item": "second rain effect (sub-band damping)",
+      "statement": "PIPELINE-V6 section 4 asks only for the mechanism with a coefficient close to 1 and the shape documented as an approximation.  gamma = F*Ebar/(rho g m0_lowk) is a first-order rate with NO tuned constant; the factor 1/(1+gamma*tau) is evaluated over one impact-process lifetime and weighted to the sub-band side only.  In this windless scene there is only the Cox-Munk floor to damp, so the applied gain is 0.998/0.987/0.926 at R=2/10/50 -- close to 1, as designed.  The per-8 s-loop value of the same rate (exp(-gamma*8)) is recorded but NOT applied: a static-spectrum loop is not the place to integrate a slow damping law.",
+      "kind": "approximation_permitted_by_design"
+    },
+    {
+      "item": "band Gaussian not hard-clipped",
+      "statement": "the bump is a Gaussian in k with sigma_k = (630-310)/6; at R=1 and R=50 the centre sits on the band edge, so the tail crosses 310/630.  The variance fraction inside the band is recorded per rate (0.89 at R=2, 0.99 at R=10, 0.59 at R=50).  The bump MEAN wavenumber equals k_ring(R) by symmetry of the Gaussian, so the monotone-centre gate is exact.",
+      "kind": "approximation"
+    },
+    {
+      "item": "rain does not modify the light path",
+      "statement": "PIPELINE-V6 section 8: no airborne drops, no splash/crown/stalk geometry, no per-drop simulation.  Only the surface spectrum changes.",
+      "kind": "scope"
+    }
+  ],
+  "calibrations_not_derived": [
+    {
+      "name": "RING_ETA",
+      "value": 0.1,
+      "role": "impact -> ring-wave energy conversion efficiency",
+      "basis": "impact -> ring-wave energy conversion efficiency.  The report derives everything else in the rain chain (Lambda(R), v(D), F(R), D0(R), the k band, the lifetime) but not this.  Value 0.10: about a tenth of the impact kinetic energy survives into the ring band after the cavity, crown and Worthington-jet/splash phase -- which PIPELINE-V6 section 8 explicitly excludes from the model, so that energy is lost by construction.  Order-of-magnitude calibration, NOT derived; the sensitivity is recorded in numbers-v6.json (eta 0.03/0.10/0.30)."
+    }
+  ],
+  "inherited_calibrations_v5": [
+    "turbidity -> da+db scale (TURBID_DC_MAX=0.30 1/m, 70% scatter)",
+    "scattering blur proportionality (BLUR_K_PX=40 px at 2048^2)",
+    "b_w(550)=0.0018 1/m anchor",
+    "display-level normalisation E=E_v3*(L_v3/L_v5) (display transform, not physics)"
+  ],
+  "timing_s": {
+    "v5_state_build": 24.67759871482849,
+    "v5_transport": 94.9426953792572,
+    "wall_total": 565.3967201709747
+  }
+}
