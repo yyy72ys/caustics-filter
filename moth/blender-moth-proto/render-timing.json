@@ -1,0 +1,255 @@
+{
+  "frames": 48,
+  "total_sec": 19.77,
+  "per_frame_mean": 0.411,
+  "per_frame_min": 0.354,
+  "per_frame_max": 0.816,
+  "samples": 64,
+  "resolution": [
+    832,
+    480
+  ],
+  "motion_blur": true,
+  "per_frame": [
+    {
+      "frame": 0,
+      "sec": 0.816,
+      "bytes": 702840
+    },
+    {
+      "frame": 1,
+      "sec": 0.392,
+      "bytes": 702771
+    },
+    {
+      "frame": 2,
+      "sec": 0.404,
+      "bytes": 702743
+    },
+    {
+      "frame": 3,
+      "sec": 0.711,
+      "bytes": 702708
+    },
+    {
+      "frame": 4,
+      "sec": 0.398,
+      "bytes": 702939
+    },
+    {
+      "frame": 5,
+      "sec": 0.389,
+      "bytes": 702710
+    },
+    {
+      "frame": 6,
+      "sec": 0.379,
+      "bytes": 702688
+    },
+    {
+      "frame": 7,
+      "sec": 0.41,
+      "bytes": 702727
+    },
+    {
+      "frame": 8,
+      "sec": 0.409,
+      "bytes": 702865
+    },
+    {
+      "frame": 9,
+      "sec": 0.43,
+      "bytes": 701655
+    },
+    {
+      "frame": 10,
+      "sec": 0.41,
+      "bytes": 702440
+    },
+    {
+      "frame": 11,
+      "sec": 0.437,
+      "bytes": 701397
+    },
+    {
+      "frame": 12,
+      "sec": 0.392,
+      "bytes": 701402
+    },
+    {
+      "frame": 13,
+      "sec": 0.417,
+      "bytes": 700902
+    },
+    {
+      "frame": 14,
+      "sec": 0.407,
+      "bytes": 699825
+    },
+    {
+      "frame": 15,
+      "sec": 0.412,
+      "bytes": 700381
+    },
+    {
+      "frame": 16,
+      "sec": 0.446,
+      "bytes": 700432
+    },
+    {
+      "frame": 17,
+      "sec": 0.375,
+      "bytes": 701078
+    },
+    {
+      "frame": 18,
+      "sec": 0.389,
+      "bytes": 701205
+    },
+    {
+      "frame": 19,
+      "sec": 0.39,
+      "bytes": 699931
+    },
+    {
+      "frame": 20,
+      "sec": 0.399,
+      "bytes": 700627
+    },
+    {
+      "frame": 21,
+      "sec": 0.379,
+      "bytes": 701268
+    },
+    {
+      "frame": 22,
+      "sec": 0.394,
+      "bytes": 701769
+    },
+    {
+      "frame": 23,
+      "sec": 0.4,
+      "bytes": 701349
+    },
+    {
+      "frame": 24,
+      "sec": 0.404,
+      "bytes": 700787
+    },
+    {
+      "frame": 25,
+      "sec": 0.406,
+      "bytes": 701938
+    },
+    {
+      "frame": 26,
+      "sec": 0.408,
+      "bytes": 704366
+    },
+    {
+      "frame": 27,
+      "sec": 0.405,
+      "bytes": 705951
+    },
+    {
+      "frame": 28,
+      "sec": 0.406,
+      "bytes": 708082
+    },
+    {
+      "frame": 29,
+      "sec": 0.382,
+      "bytes": 709939
+    },
+    {
+      "frame": 30,
+      "sec": 0.394,
+      "bytes": 711122
+    },
+    {
+      "frame": 31,
+      "sec": 0.401,
+      "bytes": 711385
+    },
+    {
+      "frame": 32,
+      "sec": 0.387,
+      "bytes": 711864
+    },
+    {
+      "frame": 33,
+      "sec": 0.387,
+      "bytes": 711863
+    },
+    {
+      "frame": 34,
+      "sec": 0.387,
+      "bytes": 711992
+    },
+    {
+      "frame": 35,
+      "sec": 0.384,
+      "bytes": 712228
+    },
+    {
+      "frame": 36,
+      "sec": 0.364,
+      "bytes": 712289
+    },
+    {
+      "frame": 37,
+      "sec": 0.354,
+      "bytes": 712387
+    },
+    {
+      "frame": 38,
+      "sec": 0.372,
+      "bytes": 712300
+    },
+    {
+      "frame": 39,
+      "sec": 0.403,
+      "bytes": 712389
+    },
+    {
+      "frame": 40,
+      "sec": 0.379,
+      "bytes": 712451
+    },
+    {
+      "frame": 41,
+      "sec": 0.383,
+      "bytes": 712496
+    },
+    {
+      "frame": 42,
+      "sec": 0.379,
+      "bytes": 712417
+    },
+    {
+      "frame": 43,
+      "sec": 0.39,
+      "bytes": 712559
+    },
+    {
+      "frame": 44,
+      "sec": 0.379,
+      "bytes": 712581
+    },
+    {
+      "frame": 45,
+      "sec": 0.388,
+      "bytes": 712586
+    },
+    {
+      "frame": 46,
+      "sec": 0.388,
+      "bytes": 712587
+    },
+    {
+      "frame": 47,
+      "sec": 0.409,
+      "bytes": 712582
+    }
+  ]
+}
