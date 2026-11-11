@@ -68,3 +68,64 @@
 ### 優先度低で確定
 - **D 流れ**： 池主体では二次的（3者一致）。川シーン拡張時／v4 の流れと一緒に扱う。
 - 雨滴の詳細結合・クレーター波、カメラ撮像モデル（v4 のカメラモードへ接続済み）、底面アルベド 2D 分布・BRDF は P1–P2。
+
+---
+
+## v3.7 round (2026-11-11) — D1–D5 design under test, same threads
+
+New evidence: the spectrum diagnosis (delivery/spectrum-diag/) —
+TWO independent defects (H_s = 4×waveHeightM wind-only curve;
+capillary tail absent + taper anchor cuts to target + lambda_p =
+patch artefact + U=10 silent no-op).
+Verdicts: GPT — D1-replace SURVIVES, D2 WEAKENED, D3 taper-retire
+SURVIVES / 0.034-swap WEAKENED, D4 SURVIVES/WEAKENED, D5 dispersion
+SURVIVES / quantisation WEAKENED. Grok — D1 WEAKENED, D2 DEAD
+(splice continuity unspecified), D3 WEAKENED, D4/D5 SURVIVES.
+Gemini — D1 WEAKENED, D2 DEAD, D3 DEAD (ECKV's own B_h integrates
+above 0.034; taper was the only closed-loop check), D4/D5 SURVIVES,
+plus an eta=1 Hessian/quadrature breakage claim.
+Synthesis adopted in PIPELINE-V9.md: additive two-regime spectrum
+(JONSWAP via exact Jacobian conversion + ECKV B_h ADDED — no
+splice, no renormalisation); NO MSS target (MSS is an output,
+reported vs CM / retired target / full-ECKV); an acceptance
+battery G0–G10 replaces the retired anchor; depth correction
+regime-gated; cascades partition ONE spectrum on a shared
+quantised clock; low-wind alpha_m floor explicit + logged.
+Digests: rally-v37-{gpt,grok,gemini}.md.
+
+## v3.8 round — gravity-tail termination (2026-11-11)
+Claims D1–D5 from research_notes/gravity-tail-termination-spectrum-20261111-0528. Digests: rally-v38-gpt.md / rally-v38-grok.md / rally-v38-gemini.md.
+- D1 (level, not cutoff): SURVIVES (Gemini, Grok) / WEAKENED (GPT). Finite-depth attack dead at all three (kh≥15 in band). GPT's condition adopted as design gate A1: reproduce B_g from the implemented transform under the code's convention (deep + finite depth, ratios reported).
+- D2 (envelope reset): WEAKENED at all three — circularity. Resolution: ECKV fraction is a conformance reference only; independent anchors (Cox–Munk, Hwang, Laxague) carry validation. Gemini adds: ECKV lacks the young-sea parasitic-capillary source, so even conformance may under-represent a real Ω_c≈6.3 pond — recorded as a known missing source.
+- D3 (B_l swap): SURVIVES (Gemini) / WEAKENED (GPT) / DEAD-as-pure-Elfouhaily, WEAKENED-as-hybrid (Grok). Consensus path: proceed as a challenger, honestly labelled "Elfouhaily-form spectrum with fetch-derived sea-state parameters", behind a compatibility gate (unchanged renderer, old vs new: H_s, height quantiles, slope/curvature, caustic stats). ΔH_s demoted from rejection to report+flag (Gemini's scaling-exponent argument: a 15% gate rejects valid cells systematically).
+- D4 (defer Kudryavtsev): SURVIVES at all three.
+- D5 (battery): rewritten into three classes — conformance / validation / compatibility; bit-identity scoped to identical buffers (Gemini's contrary reading was of an imprecise prompt sentence, clarified in the design).
+
+## v3.9 round — low-wind capillary floor (2026-11-11)
+Claims R1–R6 + decision (a)+(d), from research_notes/low-wind-capillary-floor-20261111. Digests: rally-v39-{gpt,grok,gemini}.md.
+- R1 (alpha_m zero is a fit artefact): SURVIVES at GPT (scope-limited), Grok, Gemini.
+- R2 (C1 unsatisfiable at U=1.5): WEAKENED at GPT (matched-definition care), SURVIVES at Grok, Gemini.
+- R3 (floor at sigma2_h=0.003): WEAKENED at all three — not a measured pond capillary level; labelled provisional prior only.
+- R4 (suspect flips at U=3): WEAKENED at GPT, SURVIVES at Grok, Gemini.
+- R5 (Kudryavtsev no rescue): WEAKENED at GPT (implementation vs mechanism), SURVIVES at Grok, Gemini.
+- R6 (parasitic increment unquantified): WEAKENED at GPT, Grok; SURVIVES at Gemini (direction only above the crest-steepness threshold).
+- Decision (a)+(d): REJECTED at all three (goalpost-moving). Converged requirements: three-state gates with low-wind C1 = UNRESOLVED (GPT); a wind-independent minimum-capillary test for all cells (Grok); absolute-B envelope reported + viscous-transition physics noted (Gemini); sensitivity sweep of the prior (GPT).
+- All three name the same decisive measurement: a lab/field slope spectrum at U=1.5–3 resolving k>200 rad/m. Not available to us — design carries UNRESOLVED openly.
+Design: PIPELINE-V11.md (chunk 9 = v3.9). Implementation brief: BRIEF-V13-FLOORFIX.md.
+
+## Audit round 2026-11-11 (3.1–3.9 full audit + 3.9 boundary) — digests rally-v40-{gpt,grok,gemini}.md
+Consensus: 3.1 STANDS; 3.2 WEAKENED→flagged REJECTED_INVALID_DERIVATION (Gemini label); 3.3 STANDS; 3.4 STANDS as machinery; 3.5 WEAKENED (η=1 = scope decision, not a repair); 3.6 WEAKENED (merged as best-available, not validated — battery compares the model to itself); 3.7 WRONG as a validated default (3/3) → operational fallback with defects disclosed; 3.8 STANDS as challenger; 3.9 WEAKENED. Boundary ranking: (b) prior extension rank 1 at GPT+Grok; (d) absolute-saturation gate redesign rank 1 at Gemini, on a new physical argument (viscous dissipation ∝4νk² makes capillary dominance at U≤3 possibly unattainable; the 50% share gate is a high-wind intuition). GPT/Grok admit (d) only with independent justification — Gemini's B-envelope test is that candidate justification. Settlement (PIPELINE-V12): three-arm matched measurement (RAW / B / D), winner by independent constraints only, low-wind cells UNRESOLVED at best (3/3), no universal-default merge on a prior. Gemini's flat-surface runtime fallback NOT adopted (project scenes are low-wind ponds; labelled uncertainty, not a deleted surface).
+
+## B-envelope adjudication round 2026-11-11 — digests rally-v41-{gpt,grok,gemini}.md; research: research_notes/benvelope-cap-literature-20261111-1014
+Question: the chunk-10 merge blocker — the B-envelope clause (max B(k) <= 0.012 over [10,1500], from Gemini's audit battery) failed 3 of 4 high-wind cells identically in all arms. Literature verdict: the clause is a CATEGORY ERROR — 0.012 is Phillips' equilibrium-range coefficient beta, a MEAN (Juszko 1995: mean 0.012, range 0.006-0.024), valid only in 1.3-3 f_p; no source caps the total spectrum with it. Elfouhaily's own B_l(k_p) = 0.1433*alpha_p*gamma equals 0.0120 @ Omega 4.9, 0.01765 @ 7.3, 0.02411 @ 10.3 (flank x1.04 -> 0.0183 / 0.0250 = our failing cells exactly); B_h(k_m) = (1/2)*alpha_m = 0.01249 at U=10 (implementation alpha_m = 0.024970, Eq. 44 high branch — the research's alpha_m flag resolved: my mission text's 0.016 was my own error, the implementation was already Eq. 44).
+Rally: C1 SURVIVES 3/3. C2 SURVIVES (GPT/Gemini conditional: beyond Omega<=5 it is model-conformance, not empirical validation). C3 SURVIVES at Grok/Gemini, WEAKENED at GPT (JONSWAP sub-km values extrapolate the alpha fetch law). C4 SURVIVES (GPT conditional: consistency check, not independent physics). Retirement = principled correction, NOT goalpost-moving (3/3). Replacement: region-wise gate — (a) gravity peak/flank vs Elfouhaily's own value x1.5 tolerance + Omega>5 FLAG; (b) equilibrium fitted beta in [0.006, 0.024]; (c) capillary vs (1/2)*alpha_m. GPT condition: report conformance vs observation as TWO columns; for Omega>5 cells also print the fetch-anchored (JONSWAP) alternative peak. Grok conditions: warning travels with every output; regression stays green; H_s as prediction with a FORWARD 15% tripwire (adopted forward; on this matrix |dHs| is -21%/-22% at the two F=100 cells — annotated, not retroactively re-gated; the pre-registered 35% K1 stands). Gemini condition: WARN_EXTRAPOLATED_WAVE_AGE tag; UNRESOLVED flags persist.
+MERGE APPROVED 3/3 with those conditions -> chunk 11 (BRIEF-V15-MERGE.md, run_v15): elfouhaily-form (Arm-D rules) becomes the default spectrum (v3.10); jonswap stays as rollback. GPT restriction recorded: the new battery is a conformance + region-wise observation battery, never "physical truth".
+
+## v42 round — low-wind adoption (2026-11-12)
+Question: adopt the σ²_h = 0.003 low-wind prior as ADOPTED_WITH_BASIS (claims L1–L5; research: research_notes/low-wind-adoption-20261112; prompt: rally-v42-lowwind-prompt.md). Digests: rally-v42-gemini.md / rally-v42-gpt.md.
+- **Grok: SKIPPED by the user's one-time exception** (2026-11-12 01:51: 「grokで止まるのもったいないからパスでいいよ」「今回だけ特例」). The prompt was posted in the thread but rate-limited; the 04:00 collection cron was cancelled the same night (automation registry updated). This round's record is a two-way synthesis; the exception is for this round only.
+- Gemini (AI Studio, 3.8 Flash): **ADOPT WITH CONDITIONS**. L1 SURVIVES, L2 WEAKENED, L3 SURVIVES, L4 WEAKENED, L5 SURVIVES. Conditions: (1) rename the identifier to PROVISIONAL_UNRESOLVED_CONVENTION with the opening line stating Gate C1 NOT PASSED (counterargument #9 "valid and fatal to the draft's headline"); (2) explicit pond-slicks disclaimer (true capillary MSS may be orders below the bracket floor on sheltered/film ponds; convention = intentional upper-bound clean-water); (3) automated test that `low_wind_prior` provenance is present in every low-wind output. #1 answered: not v3.9 goalpost-moving (gates untouched). #7: rain fails criterion 1, the 3.6 halo fails criterion 2 — locked out.
+- GPT: **REJECT** the adoption claim (retaining the 0.003 operational floor is NOT rejected). L1 WEAKENED, L2 WEAKENED, L3 DEAD, L4 DEAD, L5 WEAKENED. Core objection: the same-observable failure — Cox–Munk/Hu constrain TOTAL MSS, not the capillary-band component assigned 0.003, so criterion 1 ("zero positively excluded") and the "bracket" do not hold for the component; [0.0015, 0.006] is a declared sensitivity interval, not an evidence bracket; a Kudryavtsev-2013 implementation is a model, not a measurement (supersession = model-comparison trigger only). Tightened 5-clause admission rule recorded in rally-v42-gpt.md (low-wind fails clause 2; rain fails clause 1; halo not automatically eligible). Required replacement status: **UNRESOLVED — OPERATIONAL PRIOR RETAINED (not validated; not a gate pass)**.
+- Convergence (2/2): no number, gate outcome, or printed status changes; the sensitivity sweep ships; provenance travels; the headline must lead with UNRESOLVED and must not read "ADOPTED". Difference: Gemini permits a provisional-convention adoption framing; GPT rejects the adoption claim itself.
+- Synthesis (Muse): GPT's wording satisfies Gemini's headline condition and the user's closure intent — the implementation decision is closed, the physical question stays open, and v4 may depend on the prior. The final identifier is the user's choice (asked 2026-11-12, choice-format); implementation of the settled wording + the provenance test follows in code and repo docs.
+- **RESOLVED 2026-11-12 02:24: the user chose GPT's wording** — UNRESOLVED — OPERATIONAL PRIOR RETAINED. Implementation dispatched the same night as chunk 13 (BRIEF-V17-LOWWIND-STATUS.md: new `lowwind_status.py` + `test_lowwind_provenance.py`, no existing file modified); the repo-facing document was written to the v3 ALPHA freeze staging as `docs/LOW-WIND-STATUS.md`.

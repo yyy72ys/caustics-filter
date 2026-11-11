@@ -64,7 +64,7 @@ def main():
     ap.add_argument("--preset", type=int, default=1)
     ap.add_argument("--out", default="out/prod")
     ap.add_argument("--v2dir", default="out/v2")
-    ap.add_argument("--photo", default="../samples/moth-on-bark.jpg")
+    ap.add_argument("--photo", default="../test-inputs/moth-on-bark.jpg")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--frames", default="0-191")
     args = ap.parse_args()

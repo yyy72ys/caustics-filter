@@ -26,9 +26,6 @@ OUT = os.path.join(HERE, "out", "prod")
 PAD = os.path.join(OUT, "padtmp")
 FFMPEG = os.path.join(HERE, "_vendor", "imageio_ffmpeg", "binaries",
                       "ffmpeg-win-x86_64-v9.0.2.exe")
-if not os.path.exists(FFMPEG):
-    # No vendored binary: fall back to the ffmpeg on PATH.
-    FFMPEG = shutil.which("ffmpeg") or "ffmpeg"
 MP4_NAME = "loop8s-736x540.mp4"
 FPS = 24
 
