@@ -12,7 +12,16 @@ v3.4 tag marks the top of the v3 series at freeze time. The v3.5 chunk (sky
 split) and the 8 s piece base render landed after this freeze was specified
 and will be frozen by a follow-up commit.
 
-## v3 ALPHA follow-up freeze (assembled 2026-11-12, NOT yet pushed)
+## v3 ALPHA follow-up freeze (assembled 2026-11-12; push approved by the owner 2026-11-12)
+
+Per-version record of what was done: see `VERSION-HISTORY.md`.
+Production follow-up (2026-11-12, after the ALPHA assembly): the three 8 s
+pieces v18 (Blender moth base), v19 (photo base, preset 5 "deep clear pond")
+and v20 (the v2 loop's place and weather on the current stack) — their
+production code (offline/run_v18_prod.py, run_v19_prod.py, run_v20_prod.py)
+and briefs (docs/BRIEF-V19-PROD8S-PHOTO.md, docs/BRIEF-V20-PROD8S-V2COND.md)
+are included; the rendered videos themselves live in the project's delivery
+records, not in this repo.
 
 Contents: v3.5 (sky split, η=1 chosen for the piece), v3.6 water with the
 2026-11-12 measurement correction (Fournier–Forand phase function, FF-CDF
@@ -30,5 +39,6 @@ derivation, deferred to the v4 era by the owner's decision; v3 closes as
 
 Security note: this commit REMOVES offline/id_ed25519, a private SSH key that
 was swept into the v3-series catch-up commit (1a09eed) when the offline tree
-was copied wholesale. Removal from HEAD does not purge history; the key is
-being rotated separately.
+was copied wholesale. Removal from HEAD does not purge history. Rotation of
+the key was considered and deferred by the owner's decision (2026-11-12);
+the PC it authorizes is reachable only inside the owner's Tailscale network.

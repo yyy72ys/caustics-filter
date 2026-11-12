@@ -24,3 +24,19 @@ v4 の主題は「コースティクスそのものの研究」。光の出方�
 ## 状態
 - 2026-11-10： v4 調査を deep research で開始（入射角／流れ／しぶき／気泡／ボトム凹凸と影／影の一級要素化、の6問）。成果は research-v4-caustics/ に統合する。
 - v3 の残り（チャンク3 網膜）は未完のまま保持。扱いの順序は調査結果と合わせて決める。
+
+## Viewpoint — user reference photos (2026-11-11)
+User brought two reference photos and asked whether viewpoint changes how caustics appear even in shallow water:
+- `refs/ref-shallow-caustics-web.jpg` — looking THROUGH the surface (near-normal): crisp caustic web projected on a shallow pebbly bottom.
+- `refs/ref-grazing-green-surface.jpg` — looking AT the surface at a grazing angle: reflection dominates, bottom gone, chromatic (dispersion) fringes on the ripple highlights.
+Recorded physics: viewing angle sets the Fresnel reflect/transmit split (R ~2% near-normal → 21% at 75° → mirror at grazing), so the same water reads as "bottom caustics" or as "surface mirror" purely by viewpoint; sun glitter is defined around the specular direction (viewpoint-bound); the bottom caustic WEB is strong even in shallows because focusing is set by short-scale surface curvature, while depth mainly scales the lateral warp of the submerged image (consistent with the user's z=4 m favourite). This is direct evidence for the v4 viewpoint branch (EYE/CAMERA + angle as first-class variables).
+
+## v4 最初の設計対象（ユーザー決定 2026-11-12）
+
+**流れのある水面**——流れの強い川の上流の水面から始める。経緯： v20 の対照実験で「v2 の迫力の主因は古い強すぎる風波だった」と確定したあと、ユーザーが「逆に v3 で 23px 作る環境はあるか」と問い、深い澄んだ湖（深さで稼ぐ線）と並んで「流れの強い川の上流」を挙げ、**v4 の最初はそれで**と決定した。
+
+物理の見立て（着手前の整理）：
+- 上流の水面の荒れは風ではなく流れが作る：水が底の岩を越えるときの盛り上がりと落ち込み（定在波・ボイル）。傾きは風波より急になりうる。歪みは「深さ×傾き」なので、浅くても傾きで稼げる可能性が本命の仮説。
+- 現行エンジン（v3.x）の水面生成は風スペクトルのみで、この水面は作れない。流れで水面がどう変形するかの計算が新しい核になる。
+- 進め方は v3 と同じ型：調査（チャンク0相当）→ 機構への接続 → 設計 → 実装 → 数値ゲートと目視。
+- なお v3 は 2026-11-12 に ALPHA として push 済み（本決定と同日）。雨（3.2）の再導出も v4 時代の課題として残る。
