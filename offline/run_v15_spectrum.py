@@ -363,20 +363,25 @@ def observation_beta(ctx, n=20000):
     excess = Bh - Bl
     cont = bool(np.any(excess > 0.0))
     j = int(np.argmax(excess))
-    if cont:
+    if in_band and cont:
         status, pass_flag = "UNRESOLVED_BAND_CONTAMINATED", None
         reason = ("B_h exceeds B_l inside the fit band at "
                   "k = %.2f rad/m (f = %.2f Hz, B_h - B_l = %+.3e): the fitted "
-                  "beta is band-contaminated, so it is reported as UNRESOLVED, "
-                  "never a silent PASS/FAIL"
+                  "beta is inside [0.006, 0.024] but band-contaminated, so it "
+                  "is reported as UNRESOLVED, never a silent PASS/FAIL"
                   % (float(k[m][j]), float(fm[j]), float(excess[j])))
     elif in_band:
         status, pass_flag = "PASS", True
         reason = "beta inside [0.006, 0.024] and the fit band is uncontaminated"
     else:
+        # The brief's order: the UNRESOLVED clause is conditional on being
+        # INSIDE the band.  An out-of-band beta is a FAIL whether or not the
+        # band is contaminated -- contamination is then a second reason, not
+        # a rescue.
         status, pass_flag = "FAIL_OUT_OF_BAND", False
-        reason = ("beta outside [0.006, 0.024] on an uncontaminated fit band "
-                  "(%.5f)" % beta_om)
+        reason = ("beta outside [0.006, 0.024] (%.6f)%s"
+                  % (beta_om, "; the fit band is also contaminated"
+                     if cont else " on an uncontaminated fit band"))
     return {
         "what": ("equilibrium-range coefficient from the assembled "
                  "omnidirectional spectrum: log-space LSQ of "

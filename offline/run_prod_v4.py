@@ -15,6 +15,16 @@ Usage (from caustics-filter/offline/):
   python run_prod_v4.py --recipe ../blender/recipe-1.json --preset 1
 All logging goes to files (progress.log, prod-run.log); stdout is minimal
 so the script survives stdio-restricted sandboxes.
+
+Deposit implementation (BRIEF-DET-WIRE, BRIEF-DET-WIRE2): the det call goes
+through `det_fast2.det_frame_fast2(..., sort_mode="radix", deposit="fused",
+row_block=256)`, which is bit-identical to the frozen `det.det_frame`
+(REPORT-DET-BINSORT §3).  The previous implementation stays reachable:
+`--det-impl fast` / DET_IMPL=fast selects `det_fast.det_frame_fast` and
+`--det-impl base` / DET_IMPL=base restores the frozen det.py path.
+`--det-threads N` / DET_THREADS=N sets the numba thread count (unset = numba
+default).  row_block is pinned to the production value 256: it defines the
+summation order of the deposit and must not change.
 """
 import argparse
 import datetime
@@ -31,7 +41,8 @@ from PIL import Image
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from env import resolve_environment  # noqa: E402
 from state import WaterState, sample_bicubic  # noqa: E402
-from det import det_frame, flow_backward_master  # noqa: E402
+from det import det_frame as det_frame_base  # noqa: E402
+from det import flow_backward_master  # noqa: E402
 from image import (render_frame_v3, srgb_to_linear, linear_to_srgb,  # noqa: E402
                    aces_narkowicz, e_base_dir_from_env, IOR)
 
@@ -44,7 +55,82 @@ B_SIGMA_FROZEN = 3.0
 E_FROZEN = 2.2
 SEED_V2 = 3255045276382562994
 
+DET_IMPL_DEFAULT = "fast2"  # BRIEF-DET-WIRE2: radix+fused deposit is default
+DET_ROW_BLOCK = 256         # fixed: it defines the production summation order
+DET_SORT_MODE = "radix"     # BRIEF-DET-WIRE2: two-level counting sort
+DET_DEPOSIT = "fused"       # BRIEF-DET-WIRE2: one visit per bin, pass order
+_FAST_WORK = {}             # buffers reused across frames (fast path only)
+_FAST2_WORK = {}            # buffers reused across frames (fast2 path only)
+
 REC709 = np.array([0.2126, 0.7152, 0.0722], dtype=np.float64)
+
+
+def build_det(impl, threads, log=None):
+    """Resolve the det deposit for this run (BRIEF-DET-WIRE + -WIRE2 step 2).
+
+    impl:    "fast2" -> det_fast2.det_frame_fast2(sort_mode="radix",
+                       deposit="fused", row_block=256)         (default)
+             "fast"  -> det_fast.det_frame_fast(row_block=256)
+             "base"  -> det.det_frame                            (frozen v4)
+    threads: numba threads; None = numba default.
+
+    Returns det(fields, S, N_buf, env, Q) -> (C, info), the same call shape as
+    det.det_frame, so the per-frame body and the seam check stay unchanged.
+    det.py / det_fast.py / det_fast2.py themselves are not modified.
+    """
+    impl = (impl or DET_IMPL_DEFAULT).strip().lower()
+    if impl == "base":
+        if log:
+            log("det impl=base (det.det_frame, frozen v4 behaviour)")
+        return det_frame_base
+    if impl not in ("fast", "fast2"):
+        raise SystemExit("unknown det impl %r (use fast2|fast|base)" % impl)
+    if impl == "fast2":
+        try:
+            from det_fast2 import det_frame_fast2, warmup as warmup2
+        except Exception as exc:        # numba missing / import error
+            raise SystemExit("det impl=fast2 unavailable (%s); rerun with "
+                             "--det-impl fast or --det-impl base" % exc)
+        warmup2(threads)                # JIT once, outside the frame timing
+        if log:
+            log("det impl=fast2 (det_fast2.det_frame_fast2) sort_mode=%s "
+                "deposit=%s row_block=%d threads=%s (warmup done)"
+                % (DET_SORT_MODE, DET_DEPOSIT, DET_ROW_BLOCK, threads))
+
+        def _det_fast2(fields, S, N_buf, env, Q):
+            C, info = det_frame_fast2(fields, S, N_buf, env, Q,
+                                      row_block=DET_ROW_BLOCK,
+                                      work=_FAST2_WORK, n_threads=threads,
+                                      sort_mode=DET_SORT_MODE,
+                                      deposit=DET_DEPOSIT)
+            info = dict(info)
+            info["impl"] = "det_fast2.det_frame_fast2"
+            info["sort_mode"] = DET_SORT_MODE
+            info["deposit"] = DET_DEPOSIT
+            info["row_block"] = DET_ROW_BLOCK
+            return C, info
+
+        return _det_fast2
+    try:
+        from det_fast import det_frame_fast, warmup
+    except Exception as exc:            # numba missing / import error
+        raise SystemExit("det impl=fast unavailable (%s); rerun with "
+                         "--det-impl fast2 or --det-impl base" % exc)
+    warmup(threads)                     # JIT once, outside the frame timing
+    if log:
+        log("det impl=fast (det_fast.det_frame_fast) row_block=%d threads=%s "
+            "(warmup done)" % (DET_ROW_BLOCK, threads))
+
+    def _det_fast(fields, S, N_buf, env, Q):
+        C, info = det_frame_fast(fields, S, N_buf, env, Q,
+                                 row_block=DET_ROW_BLOCK, work=_FAST_WORK,
+                                 n_threads=threads)
+        info = dict(info)
+        info["impl"] = "det_fast.det_frame_fast"
+        info["row_block"] = DET_ROW_BLOCK
+        return C, info
+
+    return _det_fast
 
 
 def frame_files(out, i):
@@ -67,6 +153,11 @@ def main():
     ap.add_argument("--photo", default="../test-inputs/moth-on-bark.jpg")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--frames", default="0-191")
+    ap.add_argument("--det-impl", default=None,
+                    help="fast2 (default) | fast | base; DET_IMPL env is the "
+                         "fallback")
+    ap.add_argument("--det-threads", type=int, default=None,
+                    help="numba threads for the fast deposit; DET_THREADS env")
     args = ap.parse_args()
 
     if "-" in str(args.frames):
@@ -87,6 +178,14 @@ def main():
     def prog(msg):
         with open(prolog, "a", encoding="utf-8") as f:
             f.write(msg + "\n")
+
+    # ---- deposit implementation switch (BRIEF-DET-WIRE step 2) ----
+    det_impl = (args.det_impl or os.environ.get("DET_IMPL")
+                or DET_IMPL_DEFAULT).strip().lower()
+    det_threads = args.det_threads
+    if det_threads is None and os.environ.get("DET_THREADS"):
+        det_threads = int(os.environ["DET_THREADS"])
+    det = build_det(det_impl, det_threads, rlog)
 
     rlog("v4 run start %s frames=%s"
          % (datetime.datetime.now(datetime.timezone.utc).isoformat(),
@@ -153,7 +252,7 @@ def main():
         t = i / float(FPS)
         fields = state.fields_at(t)
         fields["S"] = state.S
-        C, info = det_frame(fields, S, N_buf, env, Q_FROZEN)
+        C, info = det(fields, S, N_buf, env, Q_FROZEN)
         flow = flow_backward_master(fields, S, N_buf, env)
         np.save(c_path, C.astype(np.float32))
         np.save(f_path, flow.astype(np.float32))
@@ -262,11 +361,11 @@ def main():
     rlog("seam check start")
     f0 = state.fields_at(0.0)
     f0["S"] = state.S
-    C0_chk, _ = det_frame(f0, S, N_buf, env, Q_FROZEN)
+    C0_chk, _ = det(f0, S, N_buf, env, Q_FROZEN)
     fl0 = flow_backward_master(f0, S, N_buf, env)
     f8 = state.fields_at(8.0)
     f8["S"] = state.S
-    C8, _ = det_frame(f8, S, N_buf, env, Q_FROZEN)
+    C8, _ = det(f8, S, N_buf, env, Q_FROZEN)
     fl8 = flow_backward_master(f8, S, N_buf, env)
     C0_master = np.load(frame_files(args.out, 0)[0]).astype(np.float64)
     seam_C = float(np.max(np.abs(C8.astype(np.float64)
@@ -301,7 +400,18 @@ def main():
         "frozen": {
             "state": {"grid": [GRID, GRID], "patch_S_m": float(state.S),
                       "dx_m": float(state.dx)},
-            "transport": {"method": "det.py det_frame",
+            "transport": {"method": {"fast2": "det_fast2.det_frame_fast2",
+                                     "fast": "det_fast.det_frame_fast"}
+                          .get(det_impl, "det.py det_frame"),
+                          "impl": det_impl,
+                          "sort_mode": (DET_SORT_MODE
+                                        if det_impl == "fast2" else None),
+                          "deposit": (DET_DEPOSIT
+                                      if det_impl == "fast2" else None),
+                          "row_block": (DET_ROW_BLOCK
+                                        if det_impl in ("fast", "fast2")
+                                        else None),
+                          "numba_threads": det_threads,
                           "Q": Q_FROZEN, "pixel_filter_sigma_px": 0.75,
                           "master_dtype": Cc_dtype_note,
                           "processing": "none (no clamp/renorm)"},

@@ -94,6 +94,21 @@ def main():
              "not a validation and not a measurement of any real water "
              "surface.**")
     L.append("")
+    if roll["merge_stands"]:
+        L.append("**Verdict: the merge stands** -- %d PASS / %d FAIL / %d "
+                 "UNRESOLVED over the eight cells, regression green, transport "
+                 "gates green."
+                 % (roll["n_pass"], roll["n_fail"], roll["n_unresolved"]))
+    else:
+        L.append("**Verdict: THE MERGE DOES NOT STAND** -- %d PASS / %d FAIL "
+                 "/ %d UNRESOLVED over the eight cells; the brief requires "
+                 "zero FAILs.  Failing cell(s): %s.  No threshold was moved "
+                 "and no formula was edited to change this: the failure is "
+                 "reported and the job stops there (brief stage 1 item 7 and "
+                 "the standing no-tuning rule)."
+                 % (roll["n_pass"], roll["n_fail"], roll["n_unresolved"],
+                    ", ".join(roll["failing_cells"])))
+    L.append("")
     L.append("New code (v15 family only):")
     L.append("")
     L.append("- `run_v15_spectrum.py` -- the merged default, the retired "
@@ -392,10 +407,15 @@ def main():
     L.append("`run_v15_spectrum.SPECTRUM_SOURCE_DEFAULT` is "
              "`%s` either way -- that IS the brief's stage-1 instruction for "
              "the new family, and it touches nothing outside v15 (v13_state's "
-             "`DEFAULT_SOURCE` is still `%s`; regression item 4).  If "
-             "`merge_stands` were false the sentence would be: the family's "
-             "default is set, the PROMOTION is not supported by this battery."
-             % (mac["default_spectrum_source"], "jonswap"))
+             "`DEFAULT_SOURCE` is still `%s`; regression item 4).  %s"
+             % (mac["default_spectrum_source"], "jonswap",
+                ("The battery supports the promotion."
+                 if roll["merge_stands"] else
+                 "The family's default is set, but the PROMOTION IS NOT "
+                 "SUPPORTED by this battery: %s FAILs on observation (b), and "
+                 "zero FAILs was the brief's precondition.  That is the "
+                 "finding; nothing was tuned to remove it."
+                 % ", ".join(roll["failing_cells"]))))
     L.append("")
     L.append("---")
     L.append("")
@@ -483,9 +503,13 @@ def main():
                                 it4["n_files_hashed"], it4["n_files_hashed"]))
     L.append("| 5 | jonswap still selectable and reproduces the v10 scene-A "
              "statistics within 1%% | **%s** | S identical to "
-             "`V10.assemble`; realised sigma2 %+.2e, H_s %+.2e |"
-             % (yn(it5["pass"]), it5["sigma2_rel_delta"],
-                it5["Hs_rel_delta"]))
+             "`V10.assemble`; scene A (U=1.5 F=100 h=0.6, N=%d) realised "
+             "sigma2 %+.2e, H_s %+.2e; secondary v10 scene-B/sweep cell %+.2e "
+             "/ %+.2e |"
+             % (yn(it5["pass"]), it5["cell"]["N"],
+                it5["sigma2_rel_delta"], it5["Hs_rel_delta"],
+                it5["secondary_check"]["sigma2_rel_delta"],
+                it5["secondary_check"]["Hs_rel_delta"]))
     L.append("")
     L.append("Overall regression: **%s**." % yn(reg["all_pass"]))
     L.append("")
@@ -575,20 +599,32 @@ def main():
                 j["assembly_identity_vs_v10"]["max_abs_dS"],
                 j["assembly_identity_vs_v10"]["alpha_m_v15"],
                 j["assembly_identity_vs_v10"]["alpha_m_v10"]))
-    L.append("- Realised statistics against `numbers-v10-sweep.json` cell "
-             "`%s` (N = %d, depth %g): sigma2 %.6e vs %.6e (%+.3f%%), H_s "
-             "%.6f vs %.6f (%+.3f%%), rms slope %.6f vs %.6f.  Tolerance 1%%: "
+    L.append("- Realised statistics against **v10 scene A** -- `numbers-v10-"
+             "transport.json -> scenes.A.v10_state` (preset-1 pond, U = %g, "
+             "F = %g, depth %g, N = %d): sigma2 %.6e vs %.6e (%+.3f%%), H_s "
+             "%.6f vs %.6f (%+.3f%%), rms slope %.6f vs %.6f.  The spectral "
+             "readout moves by sigma2 %+.2e and H_s %+.2e.  Tolerance 1%%: "
              "**%s**."
-             % (m["regression"]["item5_jonswap_rollback"]["reference"]
-                .split("cell ")[-1],
-                j["cell"]["N"], j["cell"]["h"],
+             % (j["cell"]["U"], j["cell"]["F"], j["cell"]["h"],
+                j["cell"]["N"],
                 j["realised_v15"]["sigma2_rad2"],
                 j["realised_v10"]["sigma2_rad2"],
                 100.0 * j["sigma2_rel_delta"],
                 j["realised_v15"]["Hs_m"], j["realised_v10"]["Hs_m"],
                 100.0 * j["Hs_rel_delta"],
                 j["realised_v15"]["rms_slope"],
-                j["realised_v10"]["rms_slope"], yn(j["pass"])))
+                j["realised_v10"]["rms_slope"],
+                j["spectral_sigma2_rel_delta"],
+                j["spectral_Hs_rel_delta"], yn(j["pass"])))
+    sc = j["secondary_check"]
+    L.append("- Secondary, differently gridded: the v10 SWEEP cell `%s` "
+             "(U = %g, F = %g, depth %g, N = %d) -- note that this cell is "
+             "v10's scene **B**, not scene A; sigma2 %+.2e, H_s %+.2e "
+             "(within 1%%: **%s**)."
+             % (sc["reference"].split("cell ")[-1], sc["cell"]["U"],
+                sc["cell"]["F"], sc["cell"]["h"], sc["cell"]["N"],
+                sc["sigma2_rel_delta"], sc["Hs_rel_delta"],
+                yn(sc["within_1pct"])))
     L.append("")
     L.append("---")
     L.append("")
@@ -773,32 +809,37 @@ def main():
              "rejects the convention has the data to say so without redoing "
              "the fit." % (min(betas), max(betas), min(bhz), max(bhz)))
     L.append("")
-    L.append("### 8.2 Contamination is UNRESOLVED, never PASS")
+    L.append("### 8.2 Contamination: the brief's clause order, applied literally")
     L.append("")
     cont_cells = [k for k, v in summ["observation_b_status"].items()
                   if v == "UNRESOLVED_BAND_CONTAMINATED"]
-    L.append("Where `B_h > B_l` inside the fit band the sub-check is "
-             "`UNRESOLVED (band-contaminated)` and the high-wind rule accepts "
-             "it as \"flagged UNRESOLVED-with-reason\".  Contaminated cells "
-             "here: %s." % (", ".join(cont_cells) if cont_cells else "(none)"))
+    L.append("The brief's order is: PASS iff beta is inside [0.006, 0.024]; "
+             "**if inside that band** `B_h > B_l` anywhere makes the sub-check "
+             "`UNRESOLVED (band-contaminated)`.  The UNRESOLVED clause is "
+             "therefore conditional on being inside the band, and an "
+             "out-of-band beta is a FAIL whether or not the band is "
+             "contaminated -- contamination is then a second reason, never a "
+             "rescue.  Contaminated cells here: %s."
+             % (", ".join(cont_cells) if cont_cells else "(none)"))
     L.append("")
     u10 = [c for c in cells if c["cell_id"] == "U10p0_F100p0"]
     if u10:
         b10 = u10[0]["observation"]["b_beta"]
-        L.append("The precedence is worth stating because it decides one "
-                 "cell.  On **U=10/F=100** the fitted beta is %.5f, i.e. "
-                 "%.1f%% BELOW the %g floor, and that cell is also "
-                 "band-contaminated.  This job applies the brief's \"never a "
-                 "silent PASS/FAIL\" clause literally: a contaminated fit is "
-                 "UNRESOLVED whatever its value, so the cell PASSes on the "
-                 "high-wind rule.  Under the stricter alternative reading -- "
-                 "out-of-band stays FAIL even when contaminated -- that cell "
-                 "would FAIL and the merge would not stand.  The data for "
-                 "either reading are in `cells[*].observation.b_beta` "
-                 "(`beta`, `beta_in_band`, `band_contaminated`, `status`); "
-                 "nothing is decided silently."
-                 % (b10["beta"], 100.0 * (1.0 - b10["beta"] / b10["beta_band"][0]),
-                    b10["beta_band"][0]))
+        L.append("That order decides one cell.  On **U=10/F=100** the fitted "
+                 "beta is %.5f, i.e. %.1f%% BELOW the %g floor, and the same "
+                 "fit band is also contaminated.  Because the beta is OUTSIDE "
+                 "the band, the contamination clause does not apply: the "
+                 "sub-check is `%s`, the cell FAILs on the high-wind rule, and "
+                 "**zero FAILs is not achieved**.  The alternative precedence "
+                 "(contamination first, so any contaminated fit is UNRESOLVED) "
+                 "would have turned this cell into a PASS and let the merge "
+                 "stand; it was rejected because it inverts the brief's "
+                 "sentence.  The data for either reading are in "
+                 "`cells[*].observation.b_beta` (`beta`, `beta_in_band`, "
+                 "`band_contaminated`, `status`, `reason`)."
+                 % (b10["beta"],
+                    100.0 * (1.0 - b10["beta"] / b10["beta_band"][0]),
+                    b10["beta_band"][0], b10["status"]))
         L.append("")
     L.append("### 8.3 The low-wind cells keep their status")
     L.append("")
@@ -835,13 +876,18 @@ def main():
     L.append("### 8.5 A parallel session shared this directory")
     L.append("")
     L.append("While this job ran, a second session wrote `run_v15*` files into "
-             "the same folder (it was ahead on the driver at one point).  This "
-             "report and every number above come from the files hashed in "
-             "section 7, produced by the four foreground stages of "
-             "`run_v15.py`.  If a later write changes `numbers-v15-*.json` or "
-             "a still, the hashes in section 7 will not match and this report "
-             "must be treated as describing a superseded state.  The "
-             "checkpoint file is progress proof and was not edited by hand.")
+             "the same folder (it was ahead on the driver at one point).  "
+             "After that session stopped, the four stages were re-run in full "
+             "from an empty checkpoint: the checkpoint records exactly four "
+             "units (`stage-1`..`stage-4`, in order) and the three stills came "
+             "out **byte-identical** to the earlier run (same sha256), which is "
+             "the determinism check.  This report and every number above come "
+             "from the files hashed in section 7, produced by that complete "
+             "run of `run_v15.py`.  If a later write changes "
+             "`numbers-v15-*.json` or a still, the hashes in section 7 will "
+             "not match and this report must be treated as describing a "
+             "superseded state.  The checkpoint file is progress proof and was "
+             "not edited by hand.")
     L.append("")
     L.append("---")
     L.append("")

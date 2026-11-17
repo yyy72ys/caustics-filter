@@ -591,23 +591,45 @@ def stage2():
         "since stage 1 -> %s" % (n_recorded, len(FROZEN_FILES), ok4))
 
     # ---- item 5: jonswap rollback lane ---------------------------------
-    cell = {"U": 6.0, "F": 100.0, "h": 1.0}
+    # The brief names the v10 SCENE-A statistics: scene A is the preset-1
+    # pond cell (U=1.5, F=100, h=0.6, N=2048) recorded in
+    # out/v10/numbers-v10-transport.json -> scenes.A.v10_state.  The U6/F100
+    # sweep cell is v10's scene B and is kept as a SECONDARY check.
+    cell = {"U": 1.5, "F": 100.0, "h": 0.6}
     ja = V15.assemble(cell["U"], cell["F"], cell["h"], source="jonswap")
     jb = V10.assemble(cell["U"], cell["F"], cell["h"],
                       k_cut=V10.KCUT_DEFAULT)
     kj = V11._k_grid(float(ja["k_cut_rad_per_m"]))
     djs = np.abs(V11.s_parts(kj, ja)["S"] - V11.s_parts(kj, jb)["S"])
+    with open(os.path.join(V10_OUT, "numbers-v10-transport.json"), "r",
+              encoding="utf-8") as f:
+        t10 = json.load(f)
+    a10 = t10["scenes"]["A"]["v10_state"]
+    n_a = int(t10["grid"]) if isinstance(t10.get("grid"), int) else 2048
+    rj = scene_for(raw, cell["U"], cell["F"], cell["h"], n_a,
+                   int(derive_seed(raw, 1)), source="jonswap")
+    rej = rj["state"].realised_stats(rj["fields"])
+    s2_rel = float(rej["sigma2_rad2"]
+                   / float(a10["realised"]["sigma2_rad2"]) - 1.0)
+    hs_rel = float(rej["Hs_m"] / float(a10["realised"]["Hs_m"]) - 1.0)
+    s2s_rel = float(rj["state"].spectrum_after["sigma2_rad2"]
+                    / float(a10["spectrum_after"]["sigma2_rad2"]) - 1.0)
+    hss_rel = float(rj["state"].spectrum_after["Hs_m"]
+                    / float(a10["spectrum_after"]["Hs_m"]) - 1.0)
+    # secondary: the v10 SWEEP cell (U6/F100/h1.0, N=1024) -- v10's scene B
     with open(os.path.join(V10_OUT, "numbers-v10-sweep.json"), "r",
               encoding="utf-8") as f:
         v10 = json.load(f)
     v10cell = [c for c in v10["cells"] if c["cell"] == V10_SCENE_A_CELL][0]
-    rj = scene_for(raw, cell["U"], cell["F"], cell["h"], v10["grid"]["N"],
-                   int(derive_seed(raw, 1)), source="jonswap")
-    rej = rj["state"].realised_stats(rj["fields"])
-    s2_rel = float(rej["sigma2_rad2"]
-                   / float(v10cell["realised"]["sigma2_rad2"]) - 1.0)
-    hs_rel = float(rej["Hs_m"] / float(v10cell["realised"]["Hs_m"]) - 1.0)
-    ok5 = bool(not djs.any() and abs(s2_rel) <= 0.01 and abs(hs_rel) <= 0.01)
+    rj2 = scene_for(raw, 6.0, 100.0, 1.0, int(v10["grid"]["N"]),
+                    int(derive_seed(raw, 1)), source="jonswap")
+    rej2 = rj2["state"].realised_stats(rj2["fields"])
+    s2b_rel = float(rej2["sigma2_rad2"]
+                    / float(v10cell["realised"]["sigma2_rad2"]) - 1.0)
+    hsb_rel = float(rej2["Hs_m"] / float(v10cell["realised"]["Hs_m"]) - 1.0)
+    ok5 = bool(not djs.any()
+               and abs(s2_rel) <= 0.01 and abs(hs_rel) <= 0.01
+               and abs(s2s_rel) <= 0.01 and abs(hss_rel) <= 0.01)
     reg["item5_jonswap_rollback"] = {
         "requirement": ("'jonswap' still selectable in v15 and reproduces the "
                         "v10 scene-A spectrum statistics (realised sigma2 and "
@@ -622,22 +644,51 @@ def stage2():
         "realised_v15": {"sigma2_rad2": float(rej["sigma2_rad2"]),
                          "Hs_m": float(rej["Hs_m"]),
                          "rms_slope": float(rej["rms_slope"])},
-        "realised_v10": {"sigma2_rad2": float(v10cell["realised"]
+        "realised_v10": {"sigma2_rad2": float(a10["realised"]
                                               ["sigma2_rad2"]),
-                         "Hs_m": float(v10cell["realised"]["Hs_m"]),
-                         "rms_slope": float(v10cell["realised"]
-                                            ["rms_slope"])},
+                         "Hs_m": float(a10["realised"]["Hs_m"]),
+                         "rms_slope": float(a10["realised"]["rms_slope"])},
+        "spectral_v15": {
+            "sigma2_rad2": float(rj["state"].spectrum_after["sigma2_rad2"]),
+            "Hs_m": float(rj["state"].spectrum_after["Hs_m"])},
+        "spectral_v10": {
+            "sigma2_rad2": float(a10["spectrum_after"]["sigma2_rad2"]),
+            "Hs_m": float(a10["spectrum_after"]["Hs_m"])},
         "sigma2_rel_delta": s2_rel, "Hs_rel_delta": hs_rel,
+        "spectral_sigma2_rel_delta": s2s_rel,
+        "spectral_Hs_rel_delta": hss_rel,
         "tolerance": 0.01,
-        "cell": dict(cell, N=int(v10["grid"]["N"]),
-                     seed=int(derive_seed(raw, 1)),
+        "cell": dict(cell, N=int(n_a), seed=int(derive_seed(raw, 1)),
                      patch_m=float(rj["state"].S)),
-        "reference": ("out/v10/numbers-v10-sweep.json cell %s"
-                      % V10_SCENE_A_CELL),
+        "reference": ("out/v10/numbers-v10-transport.json scenes.A.v10_state "
+                      "(v10 SCENE_A = preset-1 pond, U=1.5 F=100 h=0.6, "
+                      "N=%d)" % n_a),
+        "secondary_check": {
+            "why": ("the earlier comparison against the v10 SWEEP cell is kept "
+                    "as a second, differently-gridded check; that cell "
+                    "(U6/F100/h1.0, N=1024) is v10's scene B, not scene A"),
+            "reference": ("out/v10/numbers-v10-sweep.json cell %s"
+                          % V10_SCENE_A_CELL),
+            "cell": {"U": 6.0, "F": 100.0, "h": 1.0,
+                     "N": int(v10["grid"]["N"]),
+                     "patch_m": float(rj2["state"].S)},
+            "realised_v15": {"sigma2_rad2": float(rej2["sigma2_rad2"]),
+                             "Hs_m": float(rej2["Hs_m"])},
+            "realised_v10": {
+                "sigma2_rad2": float(v10cell["realised"]["sigma2_rad2"]),
+                "Hs_m": float(v10cell["realised"]["Hs_m"])},
+            "sigma2_rel_delta": s2b_rel, "Hs_rel_delta": hsb_rel,
+            "within_1pct": bool(abs(s2b_rel) <= 0.01
+                                and abs(hsb_rel) <= 0.01)},
     }
-    log("  [5] jonswap rollback: S identical %s | sigma2 %+.2e | Hs %+.2e -> "
-        "%s" % (not djs.any(), s2_rel, hs_rel, ok5))
-    del rj
+    log("  [5] jonswap scene A (U=1.5 F=100 h=0.6, N=%d): S identical %s | "
+        "realised sigma2 %+.2e Hs %+.2e | spectral sigma2 %+.2e Hs %+.2e -> "
+        "%s" % (n_a, not djs.any(), s2_rel, hs_rel, s2s_rel, hss_rel, ok5))
+    log("      secondary (v10 scene B / sweep cell U6F100): sigma2 %+.2e "
+        "Hs %+.2e -> %s" % (s2b_rel, hsb_rel,
+                            reg["item5_jonswap_rollback"]["secondary_check"]
+                            ["within_1pct"]))
+    del rj, rj2
     gc.collect()
 
     reg["all_pass"] = bool(
