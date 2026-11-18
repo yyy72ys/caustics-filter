@@ -114,3 +114,8 @@ Outcome note (2026-11-12): (1) Scattering — CLOSED, see the chunk-12 section a
 - **The controlled comparison's measured answer**: realised patch 2.4000 m; warp (green, frame 96) mean 3.665 px = **0.16× the v2 loop's ≈23 px**. The v2 loop's impact came substantially from its prescribed wave amplitude (target σ_η 0.037063 m via amplitude curve) vs the honest spectrum's H_s = 0.013027 m at the same place. Same place, same weather, same seed — different wave law.
 - Counterpoint: v20's caustic peaks are the strongest of the three pieces (C p99 mean 5.0685 vs v18 3.1410 / v19 1.6743; v2 loop's own recorded C p99 was 4.2788). Crush mean 3.24%.
 - Standing state after v19+v20: three 8 s pieces await the user's viewing verdict (v18 Blender base / v19 preset-5 photo / v20 v2-place photo); the GitHub push (ALPHA e224227 + v19/v20 follow-up) still awaits his approval.
+
+## v3 ALPHA push (2026-11-12) — CLOSED
+
+- Owner approved the push 2026-11-12 ("v3はプッシュしよう"). Freeze commits e224227 (ALPHA) + 3abec21 (v18/v19/v20 production code + briefs, PRESETS, VERSION-HISTORY.md per-version record, roadmaps) pushed via the PC route (bundle, SHA-256 verified; gh re-auth by device flow after the old token was found invalid). Remote main = 3abec21816a9b53b27e57a91c086d94eb1fab43b, verified by VM-side ls-remote. **v3 is closed as ALPHA.**
+- Same day, the owner decided v4's first design target: the flowing-water surface (fast stream headwaters). See ROADMAP-V4.md.
